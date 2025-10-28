@@ -1,4 +1,8 @@
 export class CreateJobOfferDto {
-  // ...otros campos...
+  title: string;
+  description: string;
+  salary: string;
+  publication_date: Date;
+  status: string;
   companyId: number;
 }

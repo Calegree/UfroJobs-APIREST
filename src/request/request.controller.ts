@@ -1,16 +1,33 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Inject } from '@nestjs/common';
 import { RequestService } from './request.service';
 import { CreateRequestDto } from './dto/create-request.dto';
 import { UpdateRequestDto } from './dto/update-request.dto';
 import { RequestState } from './entities/request.entity';
+import { ClientProxy, EventPattern, Payload } from '@nestjs/microservices';
 
 @Controller('request')
 export class RequestController {
-  constructor(private readonly requestService: RequestService) {}
+  constructor(
+    private readonly requestService: RequestService,
+    @Inject('RABBITMQ_SERVICE') private readonly client: ClientProxy,
+  ) {}
 
   @Post()
   create(@Body() createRequestDto: CreateRequestDto) {
-    return this.requestService.create(createRequestDto);
+    this.client.emit('student_applied', createRequestDto);
+    return { message: 'Application is being processed.' };
+  }
+
+  // --- CONSUMIDOR ---
+  @EventPattern('student_applied')
+  async handleStudentApplication(@Payload() data: CreateRequestDto) {
+    console.log('Processing new student application from queue');
+    try {
+      await this.requestService.create(data);
+      console.log('Student application successfully saved.');
+    } catch (error) {
+      console.error('Failed to save student application from queue', error);
+    }
   }
 
   @Get()

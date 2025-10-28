@@ -9,11 +9,14 @@ import { JobOffersModule } from './job_offers/job_offers.module'; // <-- Agrega 
 import { DashboardController } from './admin/dashboard.controller';
 import { JobOffer } from './job_offers/entities/job_offer.entity'; // <-- Importa la entidad aquí
 import { RequestModule } from './request/request.module';
+import { RabbitMQModule } from './rabbitmq/rabbitmq.module';
 
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({
+      isGlobal: true, // Muy importante para que RabbitMQModule pueda leer .env
+    }),
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: process.env.DB_HOST,
@@ -29,6 +32,7 @@ import { RequestModule } from './request/request.module';
     CompaniesModule,
     JobOffersModule, // <-- Agrega esta línea
     TypeOrmModule.forFeature([JobOffer]), RequestModule, // <-- agrega esto
+    RabbitMQModule, // <-- Añade esto
   ],
   controllers: [DashboardController], // <-- agrega aquí
 })
