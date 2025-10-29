@@ -1,16 +1,15 @@
-// src/app.module.ts
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { CompaniesModule } from './companies/companies.module';
-import { JobOffersModule } from './job_offers/job_offers.module'; // <-- Agrega esta línea
+import { JobOffersModule } from './job_offers/job_offers.module';
+import { JobOffer } from './job_offers/entities/job_offer.entity';
 import { DashboardController } from './admin/dashboard.controller';
-import { JobOffer } from './job_offers/entities/job_offer.entity'; // <-- Importa la entidad aquí
 import { RequestModule } from './request/request.module';
 import { S3Module } from './s3/s3.module';
-
+import { ApplicationsModule } from './applications/applications.module';
 
 @Module({
   imports: [
@@ -28,9 +27,11 @@ import { S3Module } from './s3/s3.module';
     AuthModule,
     UsersModule,
     CompaniesModule,
-    JobOffersModule, // <-- Agrega esta línea
+    JobOffersModule, // <-- Agrega esta línea,
+    ApplicationsModule,
     TypeOrmModule.forFeature([JobOffer]), RequestModule, S3Module, // <-- agrega esto
   ],
-  controllers: [DashboardController], // <-- agrega aquí
+  controllers: [DashboardController],
+  providers: [],
 })
 export class AppModule {}

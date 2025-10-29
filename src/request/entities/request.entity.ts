@@ -33,5 +33,5 @@ export class Request {
   createdAt: Date;
 
   @Column('text', { array: true, nullable: true })
-  documents: string[]; // links a los documentos adjuntos
+  documents: string[]; 
 }
