@@ -9,6 +9,7 @@ import { JobOffersModule } from './job_offers/job_offers.module'; // <-- Agrega 
 import { DashboardController } from './admin/dashboard.controller';
 import { JobOffer } from './job_offers/entities/job_offer.entity'; // <-- Importa la entidad aquí
 import { RequestModule } from './request/request.module';
+import { S3Module } from './s3/s3.module';
 
 
 @Module({
@@ -28,7 +29,7 @@ import { RequestModule } from './request/request.module';
     UsersModule,
     CompaniesModule,
     JobOffersModule, // <-- Agrega esta línea
-    TypeOrmModule.forFeature([JobOffer]), RequestModule, // <-- agrega esto
+    TypeOrmModule.forFeature([JobOffer]), RequestModule, S3Module, // <-- agrega esto
   ],
   controllers: [DashboardController], // <-- agrega aquí
 })

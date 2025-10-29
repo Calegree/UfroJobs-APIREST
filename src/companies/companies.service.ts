@@ -20,6 +20,9 @@ export class CompaniesService {
   async findAll(): Promise<Company[]> {
     return this.companyRepo.find();
   }
+  async findByEmail(email: string): Promise<Company | null> {
+    return this.companyRepo.findOne({ where: { email } });
+  }
 
   async findOne(id: number): Promise<Company> {
     const company = await this.companyRepo.findOne({ where: { id } });

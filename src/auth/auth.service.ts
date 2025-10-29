@@ -2,14 +2,16 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcryptjs';
-import { LoginDto, RegisterDto } from './dto/auth.dto';
+import { LoginDto, RegisterCompanyDto, RegisterDto } from './dto/auth.dto';
 import { UserRole, UserState } from 'src/users/users.entity';
+import { CompaniesService } from 'src/companies/companies.service';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
+    private readonly companiesService: CompaniesService,
   ) {}
 
   async validateUser(email: string, password: string) {
@@ -30,22 +32,58 @@ export class AuthService {
     };
   }
 
-  async register(dto: RegisterDto) {
+async register(dto: RegisterDto) { // Ahora usa el DTO actualizado
     const exists = await this.usersService.findByEmail(dto.email);
     if (exists) throw new Error('Email ya registrado');
+
     const hash = await bcrypt.hash(dto.password, 10);
+
+    // Convertir skills string a array si existe
+    const skillsArray = dto.skills || []; // Ya viene como array del frontend ahora
+
     const user = await this.usersService.create({
       name: dto.name,
       email: dto.email,
       password: hash,
       phone: dto.phone,
-      location: dto.location,
-      titles: dto.titles,
-      cv: dto.cv,
-      applications: dto.applications,
-      state: UserState[dto.state.toLowerCase()],
-      role: UserRole[dto.role.toLowerCase()],
+      
+      // Asignar rol y estado directamente aquí
+      role: UserRole.STUDENT, // Asumiendo que 'USER' es el rol de estudiante
+      state: UserState.ACTIVE, // O 'PENDING_VERIFICATION' si usas verificación de email
+
+      // Campos específicos de estudiante
+      career: dto.career, 
+      academicYear: dto.academicYear,
+      rut: dto.studentId, // Asumiendo que tienes un campo 'rut' en tu UserEntity
+      skills: skillsArray,
+      
+        });
+    
+    
+    return user; // Por ahora lo dejamos así para pruebas
+  }
+
+  async registerCompany(
+    dto: RegisterCompanyDto,
+  ) {
+    const exists = await this.companiesService.findByEmail(dto.email);
+    if (exists) throw new Error('Email ya registrado');
+
+
+
+    const hash = await bcrypt.hash(dto.pass, 10);
+    const company = await this.companiesService.create({
+      name: dto.name,
+      phone: dto.phone,
+      email: dto.email,
+      web: dto.web,
+      rut: dto.rut,
+      localization: dto.localization,
+      description: dto.description,
+      documents: dto.documentKeys,
+      pass: hash,
     });
-    return user;
+    return company;
   }
 }
+
