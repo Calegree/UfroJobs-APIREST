@@ -16,6 +16,11 @@ services:
       - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
     networks:
       - ufrojobs-net
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 5s
+      timeout: 10s
+      retries: 5
 
   api:
     build: .
@@ -26,8 +31,10 @@ services:
     environment:
       - DB_HOST=postgres_db
     depends_on:
-      - rabbitmq
-      - postgres_db
+      rabbitmq:
+        condition: service_healthy
+      postgres_db:
+        condition: service_started
     networks:
       - ufrojobs-net
 
@@ -44,6 +51,11 @@ services:
       - postgres-data:/var/lib/postgresql/data
     networks:
       - ufrojobs-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME} -d ${DB_NAME}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
 # ... (si tienes más servicios, asegúrate de que usen la misma red)
 
