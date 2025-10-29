@@ -10,6 +10,7 @@ import { DashboardController } from './admin/dashboard.controller';
 import { JobOffer } from './job_offers/entities/job_offer.entity'; // <-- Importa la entidad aquí
 import { RequestModule } from './request/request.module';
 import { RabbitMQModule } from './rabbitmq/rabbitmq.module';
+import { AdminModule } from './admin/admin.module';
 
 
 @Module({
@@ -33,6 +34,7 @@ import { RabbitMQModule } from './rabbitmq/rabbitmq.module';
     JobOffersModule, // <-- Agrega esta línea
     TypeOrmModule.forFeature([JobOffer]), RequestModule, // <-- agrega esto
     RabbitMQModule, // <-- Añade esto
+    AdminModule,
   ],
   controllers: [DashboardController], // <-- agrega aquí
 })
