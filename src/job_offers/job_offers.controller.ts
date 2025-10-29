@@ -1,14 +1,28 @@
-import { Controller, Post, Body, Inject } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Inject } from '@nestjs/common';
 import { ClientProxy, EventPattern, Payload } from '@nestjs/microservices'; // Añadir EventPattern y Payload
+import { JobOffersService } from './job_offers.service';
 import { CreateJobOfferDto } from './dto/create-job_offer.dto';
-import { JobOffersService } from './job_offers.service'; // Asegúrate de que el servicio esté disponible
+import { UpdateJobOfferDto } from './dto/update-job_offer.dto';
 
 @Controller('job-offers')
 export class JobOffersController {
   constructor(
-    private readonly jobOffersService: JobOffersService, // Inyecta el servicio aquí
+    private readonly jobOffersService: JobOffersService,
     @Inject('RABBITMQ_SERVICE') private readonly client: ClientProxy,
   ) {}
+
+  // --- Endpoint de prueba para enviar un evento ---
+  @Post('test-postulacion')
+  testPostulacion() {
+    const postulacion = {
+      id_oferta: 999,
+      id_usuario: 1,
+      mensaje: "Esta es una postulación de prueba desde la API.",
+    };
+    this.client.emit('nueva_postulacion', postulacion);
+    return { message: 'Evento de postulación enviado a la cola.', data: postulacion };
+  }
+  // --- Fin del endpoint de prueba ---
 
   @Post()
   async create(@Body() createJobOfferDto: CreateJobOfferDto) {
