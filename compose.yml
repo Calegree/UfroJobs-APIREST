@@ -1,0 +1,29 @@
+# Ports expone los puertos del contenedor al host, permitiendo el acceso a los servicios desde fuera del contenedor
+# Expose expone los puertos del contenedor a otros contenedores en la misma red de Docker, pero no al host
+# Volumes permite persistir datos entre reinicios del contenedor y compartir datos entre el host
+# Networks permite la comunicación entre contenedores en la misma red, facilitando la conexión entre ellos
+
+services:
+
+  minios3:
+    image: minio/minio:latest
+    restart: always  
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: server /data --console-address ":9001"
+    volumes:
+      - minios3-data:/data
+    env_file:
+      - ./.env_minio
+    networks:
+      - ufrojobs-network
+
+networks:
+  ufrojobs-network:
+    driver: bridge
+
+volumes:
+  
+  minios3-data:
+    driver: local

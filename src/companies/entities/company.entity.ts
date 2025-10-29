@@ -14,6 +14,9 @@ import {
 } from 'class-validator';
 
 export enum CompanyState {
+  PENDIENTE = 'pendiente',
+  APROBADA = 'aprobada',
+  RECHAZADA = 'rechazada',
   ACTIVO = 'activo',
   BANEADO = 'baneado',
 }

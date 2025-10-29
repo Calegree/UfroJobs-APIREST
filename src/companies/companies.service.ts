@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Company, CompanyState } from './entities/company.entity';
@@ -47,6 +47,34 @@ export class CompaniesService {
     const company = await this.findOne(id);
     if (!company) throw new Error('Compañía no encontrada');
     company.state = company.state === CompanyState.ACTIVO ? CompanyState.BANEADO : CompanyState.ACTIVO;
+    return this.companyRepo.save(company);
+  }
+
+  /**
+   * Aprobar una compañía: cambia el estado de PENDIENTE a APROBADA.
+   * Lanza BadRequest si la compañía no está en estado PENDIENTE.
+   */
+  async approveCompany(id: number): Promise<Company> {
+    const company = await this.findOne(id);
+    if (!company) throw new NotFoundException('Company not found');
+    if (company.state !== CompanyState.PENDIENTE) {
+      throw new BadRequestException('El estado de la compañía no es PENDIENTE');
+    }
+    company.state = CompanyState.APROBADA;
+    return this.companyRepo.save(company);
+  }
+
+  /**
+   * Rechazar una compañía: cambia el estado de PENDIENTE a RECHAZADA.
+   * Lanza BadRequest si la compañía no está en estado PENDIENTE.
+   */
+  async rejectCompany(id: number): Promise<Company> {
+    const company = await this.findOne(id);
+    if (!company) throw new NotFoundException('Company not found');
+    if (company.state !== CompanyState.PENDIENTE) {
+      throw new BadRequestException('El estado de la compañía no es PENDIENTE');
+    }
+    company.state = CompanyState.RECHAZADA;
     return this.companyRepo.save(company);
   }
 }

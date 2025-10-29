@@ -7,6 +7,7 @@ import { CompaniesModule } from './companies/companies.module';
 import { JobOffersModule } from './job_offers/job_offers.module';
 import { JobOffer } from './job_offers/entities/job_offer.entity';
 import { DashboardController } from './admin/dashboard.controller';
+import { AdminCompaniesController } from './admin/companies.controller';
 import { RequestModule } from './request/request.module';
 import { S3Module } from './s3/s3.module';
 import { ApplicationsModule } from './applications/applications.module';
@@ -31,7 +32,7 @@ import { ApplicationsModule } from './applications/applications.module';
     ApplicationsModule,
     TypeOrmModule.forFeature([JobOffer]), RequestModule, S3Module, // <-- agrega esto
   ],
-  controllers: [DashboardController],
+  controllers: [DashboardController, AdminCompaniesController],
   providers: [],
 })
 export class AppModule {}
