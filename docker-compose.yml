@@ -38,6 +38,19 @@ services:
     networks:
       - ufrojobs-net
 
+  minios3:
+    image: minio/minio:latest
+    restart: always  
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    command: server /data --console-address ":9001"
+  
+    env_file:
+      - ./.env
+    networks:
+      - ufrojobs-net
+
   postgres_db:
     image: postgres:15-alpine
     container_name: postgres_db
