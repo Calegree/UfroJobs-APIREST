@@ -6,10 +6,10 @@ import { ConfigModule } from '@nestjs/config';
 import { CompaniesModule } from './companies/companies.module';
 import { JobOffersModule } from './job_offers/job_offers.module';
 import { JobOffer } from './job_offers/entities/job_offer.entity';
-import { DashboardController } from './admin/dashboard.controller';
 import { RequestModule } from './request/request.module';
 import { S3Module } from './s3/s3.module';
 import { ApplicationsModule } from './applications/applications.module';
+import { AdminModule } from './admin/admin.module';
 
 @Module({
   imports: [
@@ -29,9 +29,12 @@ import { ApplicationsModule } from './applications/applications.module';
     CompaniesModule,
     JobOffersModule, // <-- Agrega esta línea,
     ApplicationsModule,
-    TypeOrmModule.forFeature([JobOffer]), RequestModule, S3Module, // <-- agrega esto
+    TypeOrmModule.forFeature([JobOffer]),
+    RequestModule,
+    S3Module, // <-- agrega esto
+    AdminModule,
   ],
-  controllers: [DashboardController],
+  controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule { }

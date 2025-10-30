@@ -16,6 +16,7 @@ import {
 export enum CompanyState {
   ACTIVO = 'activo',
   BANEADO = 'baneado',
+  PENDIENTE = 'pendiente',
 }
 
 @Entity('companies')
@@ -71,7 +72,7 @@ export class Company {
   @IsUrl({}, { each: true })
   documents?: string[]; // links a S3
 
-  @Column({ type: 'enum', enum: CompanyState, default: CompanyState.ACTIVO })
+  @Column({ type: 'enum', enum: CompanyState, default: CompanyState.PENDIENTE })
   @IsEnum(CompanyState)
   state: CompanyState;
 
