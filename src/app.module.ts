@@ -1,16 +1,17 @@
-// src/app.module.ts
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { CompaniesModule } from './companies/companies.module';
-import { JobOffersModule } from './job_offers/job_offers.module'; // <-- Agrega esta línea
-import { DashboardController } from './admin/dashboard.controller';
-import { JobOffer } from './job_offers/entities/job_offer.entity'; // <-- Importa la entidad aquí
+import { JobOffersModule } from './job_offers/job_offers.module';
+import { JobOffer } from './job_offers/entities/job_offer.entity';
 import { RequestModule } from './request/request.module';
-import { RabbitMQModule } from './rabbitmq/rabbitmq.module';
+import { S3Module } from './s3/s3.module';
+import { ApplicationsModule } from './applications/applications.module';
 import { AdminModule } from './admin/admin.module';
+import { RabbitMQModule } from './rabbitmq/rabbitmq.module';
+
 
 
 @Module({
@@ -31,11 +32,15 @@ import { AdminModule } from './admin/admin.module';
     AuthModule,
     UsersModule,
     CompaniesModule,
-    JobOffersModule, // <-- Agrega esta línea
-    TypeOrmModule.forFeature([JobOffer]), RequestModule, // <-- agrega esto
+    JobOffersModule, // <-- Agrega esta línea,
+    ApplicationsModule,
+    TypeOrmModule.forFeature([JobOffer]),
+    RequestModule,
+    S3Module, // <-- agrega esto
     RabbitMQModule, // <-- Añade esto
     AdminModule,
   ],
-  controllers: [DashboardController], // <-- agrega aquí
+  controllers: [],
+  providers: [],
 })
-export class AppModule {}
+export class AppModule { }

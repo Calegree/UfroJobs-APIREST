@@ -3,8 +3,7 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-  ManyToMany,
-  JoinTable,
+  UpdateDateColumn,
 } from 'typeorm';
 import {
   IsEmail,
@@ -13,24 +12,25 @@ import {
   IsOptional,
   IsString,
   IsArray,
-  IsUrl,
   IsPhoneNumber,
+  Matches // For RUT validation example
 } from 'class-validator';
 
 export enum UserState {
-  ACTIVO = 'activo',
-  INACTIVO = 'inactivo',
+  ACTIVE = 'activo',      // Renamed for consistency?
+  INACTIVE = 'inactivo',  // Renamed for consistency?
+  PENDING_VERIFICATION = 'pendiente_verificacion', // Example state
 }
 
 export enum UserRole {
   ADMIN = 'admin',
-  ESTUDIANTE = 'estudiante',
+  STUDENT = 'estudiante', // Renamed for consistency?
 }
 
 @Entity('users')
 export class User {
   @PrimaryGeneratedColumn('increment')
-  id: string;
+  id: number; // Changed to number
 
   @Column()
   @IsNotEmpty()
@@ -44,38 +44,63 @@ export class User {
   @Column()
   @IsNotEmpty()
   @IsString()
-  password: string;
+  password: string; // Hashed password
 
   @Column({ nullable: true })
   @IsOptional()
   @IsPhoneNumber('CL')
   phone?: string;
 
-  @Column({ default: 'temuco, chile' })
+  @Column({ nullable: true }) // Made location optional
+  @IsOptional()
   @IsString()
-  location: string;
+  location?: string;
 
-  @Column('text', { array: true })
+  // --- Student Specific Fields ---
+  @Column({ nullable: true }) // Career might not apply to Admin
+  @IsOptional()
+  @IsString()
+  career?: string;
+
+  @Column({ nullable: true }) // Academic year might not apply to Admin
+  @IsOptional()
+  @IsString()
+  academicYear?: string;
+
+  @Column({ nullable: true, unique: true }) // RUT could be unique for students
+  @IsOptional()
+  @IsString()
+  @Matches(/^\d{1,2}\.\d{3}\.\d{3}-[\dkK]$/, { message: 'RUT must be in format XX.XXX.XXX-X' }) // Basic RUT format validation
+  rut?: string; // Student ID / RUT
+
+  @Column('text', { array: true, default: () => "'{}'" }) // Added default
+  @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  titles: string[]; // Ej: ['ingeniero informatico', 'electrico']
+  skills: string[]; // Specific field for skills
 
-  @Column()
-  @IsUrl()
-  cv: string; // Link a S3
+  // --- CV Field ---
+  @Column({ nullable: true }) // Optional
+  @IsOptional()
+  @IsString()
+  cvKey?: string; // Stores the S3 Key (filename), NOT a URL
 
+  // --- Other Fields ---
   @Column('integer', { array: true, default: () => "'{}'" })
   @IsArray()
-  applications: number[]; // IDs de job_offers
+  applications: number[]; // IDs of job_offers
 
-  @Column({ type: 'enum', enum: UserState, default: UserState.ACTIVO })
+  @Column({ type: 'enum', enum: UserState, default: UserState.ACTIVE })
   @IsEnum(UserState)
   state: UserState;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' }) // Use timestamptz for timezone support
   createdAt: Date;
 
-  @Column({ type: 'enum', enum: UserRole, default: UserRole.ESTUDIANTE })
+  @Column({ type: 'enum', enum: UserRole, default: UserRole.STUDENT })
   @IsEnum(UserRole)
   role: UserRole;
+
+  @UpdateDateColumn({ type: 'timestamptz' })
+  updatedAt: Date;
 }

@@ -6,7 +6,6 @@ export class CreateCompanyDto {
   email: string;
   localization: string;
   description: string;
-  logo?: string;
   web?: string;
   documents?: string[];
 }

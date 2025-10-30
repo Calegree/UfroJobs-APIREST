@@ -1,18 +1,37 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Patch, Param, ParseIntPipe, UseGuards } from '@nestjs/common';
 import { CompaniesService } from '../companies/companies.service';
 import { UsersService } from '../users/users.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JobOffer } from '../job_offers/entities/job_offer.entity';
+import { AdminService } from './admin.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { Roles } from '../common/decorators/roles.decorator';
+import { UserRole } from '../users/users.entity';
 
-@Controller('dashboard')
+@Controller('admin/dashboard')
+@UseGuards(JwtAuthGuard, RolesGuard)
+@Roles(UserRole.ADMIN)
 export class DashboardController {
+
+  @Get('pending-companies')
+  getPendingCompanies() {
+    return this.adminService.getPendingCompanies();
+  }
+
+  @Patch('approve-company/:id')
+  approveCompany(@Param('id', ParseIntPipe) id: number) {
+    return this.adminService.approveCompany(id);
+  }
+
   constructor(
     private readonly companiesService: CompaniesService,
+    private readonly adminService: AdminService,
     private readonly usersService: UsersService,
     @InjectRepository(JobOffer)
     private readonly jobOfferRepo: Repository<JobOffer>,
-  ) {}
+  ) { }
 
   @Get('user-distribution')
   async getUserDistribution() {

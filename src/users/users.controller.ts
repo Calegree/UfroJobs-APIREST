@@ -1,6 +1,7 @@
 // src/users/users.controller.ts
 import {
   Controller, Get, Req, UseGuards, Body, Post, Param, Patch,
+  Request,
 } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UsersService } from './users.service';
@@ -8,7 +9,7 @@ import { UserRole } from './users.entity';
 
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
@@ -23,7 +24,7 @@ export class UsersController {
 
   @Get('students')
   async getStudents() {
-    const students = await this.usersService.findByRole(UserRole.ESTUDIANTE);
+    const students = await this.usersService.findByRole(UserRole.STUDENT);
     // Puedes mapear los campos aquí si quieres devolver solo los necesarios
     return students.map(user => ({
       id: user.id,
@@ -39,7 +40,7 @@ export class UsersController {
   }
 
   @Get(':id')
-  async getUserById(@Param('id') id: string) {
+  async getUserById(@Param('id') id: number) {
     const user = await this.usersService.findById(id);
     return {
       id: user.id,
@@ -55,7 +56,15 @@ export class UsersController {
   }
 
   @Patch(':id/toggle-state')
-  async toggleUserState(@Param('id') id: string) {
+  async toggleUserState(@Param('id') id: number) {
     return this.usersService.toggleState(id);
   }
+  // Endpoint para ACTUALIZAR la clave del CV del usuario logueado
+  @Patch('me/cv')
+  @UseGuards(JwtAuthGuard)
+  async updateUserCv(@Request() req, @Body('cvKey') cvKey: string) {
+    const userId = req.user.sub; // Obtener ID del usuario desde el token JWT
+    return this.usersService.updateCvKey(userId, cvKey);
+  }
+  
 }
