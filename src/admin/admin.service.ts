@@ -9,6 +9,7 @@ export class AdminService {
   constructor(
     @InjectRepository(Company)
     private readonly companyRepository: Repository<Company>,
+    //injection de rabbitMQ que viene desde el admin.module.ts
     @Inject('RABBITMQ_SERVICE') private readonly client: ClientProxy,
   ) {}
 
@@ -19,14 +20,16 @@ export class AdminService {
   }
 
   async approveCompany(id: number): Promise<Company> {
+      // 1. Se realizan las operaciones con la base de datos
     const company = await this.companyRepository.findOne({ where: { id } });
     if (!company) {
       throw new NotFoundException(`Company with ID "${id}" not found`);
     }
     company.state = CompanyState.ACTIVO;
     const savedCompany = await this.companyRepository.save(company);
-
-    this.client.emit('company_approved', {
+  // 2. ¡AQUÍ OCURRE EL ENVÍO! this.client conecta con la injection de rabbitMQ
+  //esto hace que el evento se emita a la cola de RabbitMQ entonces la api ya no se encarga de esto y todo pasa mas rapido  
+  this.client.emit('company_approved', {
       companyId: savedCompany.id,
       email: savedCompany.email,
       name: savedCompany.name,
