@@ -16,7 +16,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
     private readonly companiesService: CompaniesService,
-  ) {}
+  ) { }
 
   async validateUser(email: string, password: string) {
     const user = await this.usersService.findByEmail(email);
@@ -36,36 +36,29 @@ export class AuthService {
     };
   }
 
-async register(dto: RegisterDto) {
-    // Ahora usa el DTO actualizado
+  async register(dto: RegisterDto) {
     const exists = await this.usersService.findByEmail(dto.email);
     if (exists) throw new ConflictException('El correo ya se encuentra registrado.');
 
     const hash = await bcrypt.hash(dto.password, 10);
 
-    // Convertir skills string a array si existe
-    const skillsArray = dto.skills || []; // Ya viene como array del frontend ahora
+    const skillsArray = dto.skills || [];
 
     const user = await this.usersService.create({
       name: dto.name,
       email: dto.email,
       password: hash,
       phone: dto.phone,
-      
-      // Asignar rol y estado directamente aquí
-      role: UserRole.STUDENT, // Asumiendo que 'USER' es el rol de estudiante
-      state: UserState.ACTIVE, // O 'PENDING_VERIFICATION' si usas verificación de email
-
-      // Campos específicos de estudiante
-      career: dto.career, 
+      role: UserRole.STUDENT,
+      state: UserState.ACTIVE,
+      career: dto.career,
       academicYear: dto.academicYear,
-      rut: dto.studentId, // Asumiendo que tienes un campo 'rut' en tu UserEntity
+      rut: dto.studentId,
       skills: skillsArray,
-      
-        });
-    
-    
-    return user; // Por ahora lo dejamos así para pruebas
+    });
+
+
+    return user;
   }
 
   async registerCompany(dto: RegisterCompanyDto) {

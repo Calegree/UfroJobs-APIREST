@@ -1,4 +1,3 @@
-// src/users/users.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { User, UserRole, UserState } from './users.entity'; 
 import { InjectRepository } from '@nestjs/typeorm';
@@ -84,7 +83,7 @@ export class UsersService {
     async updateCvKey(userId: number, cvKey: string): Promise<User> {
     const user = await this.userRepo.findOneBy({ id: userId });
     if (!user) throw new NotFoundException('Usuario no encontrado');
-    user.cvKey = cvKey; // Asumiendo que 'cv' es el campo en tu entidad
+    user.cvKey = cvKey;
     return this.userRepo.save(user);
 }
 

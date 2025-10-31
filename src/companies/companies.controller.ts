@@ -41,7 +41,6 @@ export class CompaniesController {
   @UseGuards(JwtAuthGuard)
   @Get('me')
   async getMyProfile(@Req() req) {
-    // El id de la empresa debe estar en req.user.userId o req.user.companyId según tu JWT
     const companyId = req.user.userId || req.user.companyId;
     return this.companiesService.findOne(companyId);
   }

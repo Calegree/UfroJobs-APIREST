@@ -12,7 +12,7 @@ import { CreateApplicationDto } from './dto/create-application.dto';
 import { User } from '../users/users.entity';
 import { JobOffer, JobOfferState } from '../job_offers/entities/job_offer.entity';
 import { S3Service } from '../s3/s3.service';
-import { ClientProxy, EventPattern, Payload } from '@nestjs/microservices'; // Importa ClientProxy
+import { ClientProxy, EventPattern } from '@nestjs/microservices';  
 
 @Injectable()
 export class ApplicationsService {
@@ -24,7 +24,7 @@ export class ApplicationsService {
     @InjectRepository(JobOffer)
     private jobOffersRepository: Repository<JobOffer>,
     private s3Service: S3Service,
-    @Inject('RABBITMQ_SERVICE') private readonly client: ClientProxy, // Inyecta RabbitMQ aquí
+    @Inject('RABBITMQ_SERVICE') private readonly client: ClientProxy, 
   ) { }
 
   async create(createApplicationDto: CreateApplicationDto, userId: number) {
@@ -37,10 +37,10 @@ export class ApplicationsService {
 
     const jobOffer = await this.jobOffersRepository.findOne({
       where: { id: jobOfferId },
-      relations: ['company'], // Carga la compañía para la notificación
+      relations: ['company'], 
     });
     if (!jobOffer) {
-      throw new NotFoundException(`Job offer with ID ${jobOfferId} not found`); // Esto soluciona IT-2
+      throw new NotFoundException(`Job offer with ID ${jobOfferId} not found`); 
     }
     if (jobOffer.state !== JobOfferState.ACTIVO) {
       throw new BadRequestException('Job offer is not active');

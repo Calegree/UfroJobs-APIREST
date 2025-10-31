@@ -27,7 +27,7 @@ export class Company {
   @Column({ nullable: true })
   @IsOptional()
   @IsUrl()
-  logo?: string; // foto
+  logo?: string; 
 
   @Column()
   @IsNotEmpty()
@@ -60,7 +60,7 @@ export class Company {
   @Column({ nullable: true })
   @IsOptional()
   @IsUrl()
-  web?: string; // link
+  web?: string; 
 
   @Column('text')
   @IsString()
@@ -70,8 +70,8 @@ export class Company {
   @IsOptional()
   @IsArray()
   @IsUrl({}, { each: true })
-  documents?: string[]; // links a S3
-
+  documents?: string[]; 
+  
   @Column({
     type: 'enum',
     enum: CompanyState,

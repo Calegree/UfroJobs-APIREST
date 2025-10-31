@@ -19,7 +19,7 @@ export class CreateJobOfferDto {
 
   @IsArray()
   @IsString({ each: true })
-  @IsOptional() // Hacemos que sea opcional por ahora, pero la BD lo requiere
+  @IsOptional() 
   tags: string[];
 
   @IsString()

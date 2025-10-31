@@ -1,4 +1,3 @@
-import { UserRole, UserState } from "src/users/users.entity";
 import { IsString, IsEmail, MinLength, IsArray, IsOptional, IsUrl } from 'class-validator';
 
 export class LoginDto {
@@ -8,32 +7,31 @@ export class LoginDto {
 
 export class RegisterDto {
   @IsString()
-  name: string; // Viene de formData.fullName
+  name: string;
 
   @IsEmail()
-  email: string; // Viene de formData.email
+  email: string;
 
   @IsString()
   @MinLength(8)
-  password: string; // Viene de formData.password
+  password: string;
 
   @IsString()
-  phone: string; // Viene de formData.phone
-
-  // Campos específicos de Estudiante (¡NUEVOS!)
-  @IsString()
-  career: string; // Viene de formData.career
+  phone: string;
 
   @IsString()
-  academicYear: string; // Viene de formData.academicYear
+  career: string;
 
   @IsString()
-  studentId: string; // RUT, viene de formData.studentId
+  academicYear: string;
+
+  @IsString()
+  studentId: string;
 
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  skills?: string[]; // Viene de formData.skills (separado por comas)
+  skills?: string[];
 
 }
 
@@ -64,8 +62,7 @@ export class RegisterCompanyDto {
   @IsString()
   @MinLength(8)
   pass: string;
-  
-  // Esto recibirá el array ['1678886400000-rut.pdf', '1678886400001-sii.pdf']
+
   @IsArray()
   @IsString({ each: true })
   documentKeys: string[];

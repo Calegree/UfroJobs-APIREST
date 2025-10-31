@@ -8,9 +8,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: true, // This will allow requests from any origin
+    origin: true, 
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-    credentials: true, // if needed
+    credentials: true, 
   });
   const configService = app.get(ConfigService);
 
@@ -37,7 +37,7 @@ async function bootstrap() {
   });
 
   await app.startAllMicroservices();
-  await app.listen(3000); // Puerto para la API REST
+  await app.listen(3000);
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();

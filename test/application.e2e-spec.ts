@@ -16,7 +16,7 @@ import { JobOffer } from '../src/job_offers/entities/job_offer.entity';
 
 class MockRabbitMQ {
   emit() {
-    return {}; // Devuelve algo (aunque emit no suele devolver nada)
+    return {}; 
   }
 }
 
@@ -24,13 +24,11 @@ describe('ApplicationsController (e2e)', () => {
     let app: INestApplication;
     let jwtService: JwtService;
 
-    // Repositorios para limpieza y configuración
     let applicationRepository: Repository<Application>;
     let userRepository: Repository<User>;
     let companyRepository: Repository<Company>;
     let jobOfferRepository: Repository<JobOffer>;
 
-    // Variables de estado (se rellenan en beforeEach)
     let student;
     let company;
     let jobOffer;
@@ -39,7 +37,7 @@ describe('ApplicationsController (e2e)', () => {
     beforeAll(async () => {
         const moduleFixture: TestingModule = await Test.createTestingModule({
             imports: [AppModule],
-        }).overrideProvider('RABBITMQ_SERVICE') // Sobrescribe el proveedor RabbitMQ
+        }).overrideProvider('RABBITMQ_SERVICE') 
         .useClass(MockRabbitMQ)
         .compile();
 
@@ -52,7 +50,6 @@ describe('ApplicationsController (e2e)', () => {
         );
         await app.init();
 
-        // Obtener servicios y repositorios
         jwtService = moduleFixture.get<JwtService>(JwtService);
         applicationRepository = moduleFixture.get(getRepositoryToken(Application));
         userRepository = moduleFixture.get(getRepositoryToken(User));
@@ -60,21 +57,18 @@ describe('ApplicationsController (e2e)', () => {
         jobOfferRepository = moduleFixture.get(getRepositoryToken(JobOffer));
     });
 
-    // ¡SOLUCIÓN AQUÍ!
-    // 'beforeEach' se ejecuta ANTES de cada 'it(...)'
+  
     beforeEach(async () => {
-        // 1. Limpiar tablas en el orden correcto (de dependiente a independiente)
         await applicationRepository.query('DELETE FROM "applications"');
         await jobOfferRepository.query('DELETE FROM "job_offers"');
         await companyRepository.query('DELETE FROM "companies"');
         await userRepository.query('DELETE FROM "users"');
 
-        // 2. Crear datos frescos para ESTE test
         student = await userRepository.save(
             userRepository.create({
                 name: 'Test Student E2E',
                 email: `student-e2e-${Date.now()}@ufromail.cl`,
-                password: 'hashedpassword', // En E2E, no necesitas hashear si no pruebas el login
+                password: 'hashedpassword', 
                 role: UserRole.STUDENT,
                 state: UserState.ACTIVE,
                 rut: '20.333.444-5',
@@ -100,7 +94,7 @@ describe('ApplicationsController (e2e)', () => {
             jobOfferRepository.create({
                 title: 'E2E Test Offer',
                 description: 'A great job for a student.',
-                company: company, // Asigna la entidad completa
+                company: company, 
                 location: 'Test City, Chile',
                 salary: '500000-700000 CLP',
                 requirements: ['Enrolled student', 'Basic programming skills'],
@@ -111,19 +105,15 @@ describe('ApplicationsController (e2e)', () => {
             }),
         );
 
-        // 3. Generar token para ESE estudiante
         const payload = { sub: student.id, role: student.role };
         studentToken = jwtService.sign(payload);
     });
 
    
     afterAll(async () => {
-        // Limpieza final de la base de datos
-    
         await app.close();
     });
 
-    // --- Tus tests (ahora idénticos al prompt anterior, pero funcionarán) ---
     describe('POST /applications (Flujo de Postulación)', () => {
 
         it('IT-1: debe crear una postulación (201 Created) con un payload JSON válido', async () => {
@@ -178,19 +168,17 @@ describe('ApplicationsController (e2e)', () => {
                 cvKey: `cvs/${student.id}/cv-duplicado.pdf`,
             };
 
-            // 1. Primera postulación
             await request(app.getHttpServer())
                 .post('/applications')
                 .set('Authorization', `Bearer ${studentToken}`)
                 .send(payload)
                 .expect(201);
 
-            // 2. Segunda postulación
             await request(app.getHttpServer())
                 .post('/applications')
                 .set('Authorization', `Bearer ${studentToken}`)
                 .send(payload)
-                .expect(409); // Correcto
+                .expect(409); 
         });
 
         it('debe retornar 401 Unauthorized si no se provee token', async () => {

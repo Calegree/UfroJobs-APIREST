@@ -50,7 +50,6 @@ export class DashboardController {
 
   @Get('job-offers-by-month')
   async getJobOffersByMonth() {
-    // Agrupa por mes y cuenta
     const result = await this.jobOfferRepo.query(`
       SELECT 
         TO_CHAR("publishedAt", 'YYYY-MM') AS month,
@@ -60,7 +59,6 @@ export class DashboardController {
       ORDER BY month
     `);
 
-    // Puedes devolver el array así, o mapearlo para tu frontend
     return result.map(row => ({
       month: row.month,
       job_offers: Number(row.count),

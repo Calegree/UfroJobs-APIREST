@@ -26,16 +26,16 @@ import { RabbitMQModule } from './rabbitmq/rabbitmq.module';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
       autoLoadEntities: true,
-      synchronize: true, // ⚠️ Solo dev
+      synchronize: true, 
     }),
     AuthModule,
     UsersModule,
     CompaniesModule,
-    JobOffersModule, // <-- Agrega esta línea,
+    JobOffersModule, 
     ApplicationsModule,
     TypeOrmModule.forFeature([JobOffer]),
-    S3Module, // <-- agrega esto
-    RabbitMQModule, // <-- Añade esto
+    S3Module, 
+    RabbitMQModule,
     AdminModule,
   ],
   controllers: [],

@@ -32,7 +32,7 @@ describe('CompaniesController (e2e)', () => {
       pass: 'aSecurePassword123!',
       rut: '99.999.999-9',
       phone: '+56999999999',
-      email: `test-${Date.now()}@company.com`, // Use unique email for each test run
+      email: `test-${Date.now()}@company.com`, 
       localization: 'Test City, Chile',
       web: 'https://testcompany.com',
       description: 'A test company for e2e testing.',
@@ -66,13 +66,11 @@ describe('CompaniesController (e2e)', () => {
       size: '1-10 employees',
     };
 
-    // First, create the company
     await request(app.getHttpServer())
       .post('/companies')
       .send(createCompanyDto)
       .expect(201);
 
-    // Then, try to create it again with the same email
     return request(app.getHttpServer())
       .post('/auth/register-company')
       .send(createCompanyDto)

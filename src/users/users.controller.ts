@@ -1,4 +1,3 @@
-// src/users/users.controller.ts
 import {
   Controller, Get, Req, UseGuards, Body, Post, Param, Patch,
   Request,
@@ -25,7 +24,6 @@ export class UsersController {
   @Get('students')
   async getStudents() {
     const students = await this.usersService.findByRole(UserRole.STUDENT);
-    // Puedes mapear los campos aquí si quieres devolver solo los necesarios
     return students.map(user => ({
       id: user.id,
       name: user.name,
@@ -34,7 +32,7 @@ export class UsersController {
       type: 'student',
       status: user.state === 'activo' ? 'active' : 'suspended',
       createdAt: user.createdAt,
-      lastLogin: null, // Si tienes este campo, cámbialo aquí
+      lastLogin: null, 
       applications: user.applications?.length ?? 0,
     }));
   }
@@ -50,7 +48,7 @@ export class UsersController {
       type: user.role === 'estudiante' ? 'student' : 'company',
       status: user.state === 'activo' ? 'active' : 'suspended',
       createdAt: user.createdAt,
-      lastLogin: null, // Si tienes este campo, cámbialo aquí
+      lastLogin: null, 
       applications: user.applications?.length ?? 0,
     };
   }
@@ -59,11 +57,10 @@ export class UsersController {
   async toggleUserState(@Param('id') id: number) {
     return this.usersService.toggleState(id);
   }
-  // Endpoint para ACTUALIZAR la clave del CV del usuario logueado
   @Patch('me/cv')
   @UseGuards(JwtAuthGuard)
   async updateUserCv(@Request() req, @Body('cvKey') cvKey: string) {
-    const userId = req.user.sub; // Obtener ID del usuario desde el token JWT
+    const userId = req.user.sub; 
     return this.usersService.updateCvKey(userId, cvKey);
   }
   

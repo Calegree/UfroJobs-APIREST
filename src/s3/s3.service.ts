@@ -18,10 +18,6 @@ export class S3Service {
         this.bucketName = this.configService.get<string>('MINIO_BUCKET')!;
     }
 
-    /**
-   * Genera una URL firmada para SUBIR un archivo (PUT).
-   * El cliente usará esta URL para enviar el archivo.
-   */
     async getPresignedUploadUrl(fileName: string): Promise<string> {
         const bucketExists = await this.minioClient.bucketExists(this.bucketName);
         if (!bucketExists) {
@@ -31,10 +27,6 @@ export class S3Service {
         return this.minioClient.presignedPutObject(this.bucketName, fileName, 3600);
     }
 
-    /**
-     * Genera una URL firmada para DESCARGAR un archivo (GET).
-     * El cliente (ej. la empresa) usará esta URL para ver el CV.
-     */
     async getPresignedDownloadUrl(fileName: string): Promise<string> {
        
         return this.minioClient.presignedGetObject(this.bucketName, fileName, 900);

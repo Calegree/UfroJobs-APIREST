@@ -10,10 +10,8 @@ import {
   IsNotEmpty,
   IsString,
   IsArray,
-  IsOptional,
   IsEnum,
   IsNumber,
-  IsUUID,
 } from 'class-validator';
 import { Company } from '../../companies/entities/company.entity';
 
@@ -44,7 +42,7 @@ export class JobOffer {
 
   @Column()
   @IsString()
-  salary: string; // Ej: "$500.000"
+  salary: string;
 
   @Column('text', { array: true })
   @IsArray()
@@ -57,7 +55,7 @@ export class JobOffer {
   @Column('integer', { array: true, default: () => 'ARRAY[]::integer[]' })
   @IsArray()
   @IsNumber({}, { each: true })
-  applicants: number[]; // ids de usuarios (integer)
+  applicants: number[];
 
   @Column('text')
   @IsString()
@@ -70,7 +68,7 @@ export class JobOffer {
 
   @Column()
   @IsString()
-  worktime: string; // jornada
+  worktime: string; 
 
   @Column({ type: 'enum', enum: JobOfferModality })
   @IsEnum(JobOfferModality)
