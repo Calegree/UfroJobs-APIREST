@@ -5,8 +5,10 @@ import { JobOffersController } from './job_offers.controller';
 import { JobOffer } from './entities/job_offer.entity';
 import { User } from '../users/users.entity';
 
+import { RabbitMQModule } from '../rabbitmq/rabbitmq.module';
+
 @Module({
-  imports: [TypeOrmModule.forFeature([JobOffer, User])],
+  imports: [TypeOrmModule.forFeature([JobOffer, User]), RabbitMQModule],
   controllers: [JobOffersController],
   providers: [JobOffersService],
 })

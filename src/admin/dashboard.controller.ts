@@ -25,6 +25,11 @@ export class DashboardController {
     return this.adminService.approveCompany(id);
   }
 
+  @Patch('reject-company/:id')
+  rejectCompany(@Param('id', ParseIntPipe) id: number) {
+    return this.adminService.rejectCompany(id);
+  }
+
   constructor(
     private readonly companiesService: CompaniesService,
     private readonly adminService: AdminService,

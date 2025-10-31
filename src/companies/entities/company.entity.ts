@@ -72,7 +72,11 @@ export class Company {
   @IsUrl({}, { each: true })
   documents?: string[]; // links a S3
 
-  @Column({ type: 'enum', enum: CompanyState, default: CompanyState.PENDIENTE })
+  @Column({
+    type: 'enum',
+    enum: CompanyState,
+    default: CompanyState.PENDIENTE,
+  })
   @IsEnum(CompanyState)
   state: CompanyState;
 
