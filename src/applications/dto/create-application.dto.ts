@@ -1,9 +1,7 @@
 import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 
 export class CreateApplicationDto {
-  @IsNotEmpty()
-  @IsNumber()
-  userId: number;
+
 
   @IsNotEmpty()
   @IsNumber()

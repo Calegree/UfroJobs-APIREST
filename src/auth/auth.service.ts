@@ -1,4 +1,8 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcryptjs';
@@ -32,9 +36,10 @@ export class AuthService {
     };
   }
 
-async register(dto: RegisterDto) { // Ahora usa el DTO actualizado
+async register(dto: RegisterDto) {
+    // Ahora usa el DTO actualizado
     const exists = await this.usersService.findByEmail(dto.email);
-    if (exists) throw new Error('Email ya registrado');
+    if (exists) throw new ConflictException('El correo ya se encuentra registrado.');
 
     const hash = await bcrypt.hash(dto.password, 10);
 
@@ -63,13 +68,10 @@ async register(dto: RegisterDto) { // Ahora usa el DTO actualizado
     return user; // Por ahora lo dejamos así para pruebas
   }
 
-  async registerCompany(
-    dto: RegisterCompanyDto,
-  ) {
+  async registerCompany(dto: RegisterCompanyDto) {
     const exists = await this.companiesService.findByEmail(dto.email);
-    if (exists) throw new Error('Email ya registrado');
-
-
+    if (exists)
+      throw new ConflictException('El correo ya se encuentra registrado.');
 
     const hash = await bcrypt.hash(dto.pass, 10);
     const company = await this.companiesService.create({

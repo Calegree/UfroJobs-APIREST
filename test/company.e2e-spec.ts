@@ -50,4 +50,35 @@ describe('CompaniesController (e2e)', () => {
         expect(response.body.state).toEqual(CompanyState.PENDIENTE);
       });
   });
+
+  it('/companies (POST) - should return 409 for duplicate email', async () => {
+    const uniqueEmail = `duplicate-${Date.now()}@company.com`;
+    const createCompanyDto = {
+      name: 'Another Test Company',
+      pass: 'aSecurePassword123!',
+      rut: '22.222.222-2',
+      phone: '+56922222222',
+      email: uniqueEmail,
+      localization: 'Another Test City, Chile',
+      web: 'https://anothertestcompany.com',
+      description: 'Another test company for e2e testing.',
+      industry: 'Testing',
+      size: '1-10 employees',
+    };
+
+    // First, create the company
+    await request(app.getHttpServer())
+      .post('/companies')
+      .send(createCompanyDto)
+      .expect(201);
+
+    // Then, try to create it again with the same email
+    return request(app.getHttpServer())
+      .post('/auth/register-company')
+      .send(createCompanyDto)
+      .expect(409)
+      .then((response) => {
+        expect(response.body.message).toContain('El correo ya se encuentra registrado.');
+      });
+  });
 });

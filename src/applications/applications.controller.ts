@@ -1,43 +1,54 @@
+// src/applications/applications.controller.ts
 import {
   Controller,
   Post,
   Body,
+  Request,
   UseGuards,
   Get,
   Param,
   ParseIntPipe,
-  Inject,
+  Inject, // Saca @Inject
+  ForbiddenException, // Añade esto
 } from '@nestjs/common';
 import { ApplicationsService } from '../applications/applications.service';
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { ClientProxy, EventPattern, Payload } from '@nestjs/microservices';
+// Saca ClientProxy y EventPattern
+// import { ClientProxy, EventPattern, Payload } from '@nestjs/microservices';
+import { UserRole } from '../users/users.entity'; // Asumiendo que tienes esto
 
+@UseGuards(JwtAuthGuard)
 @Controller('applications')
 export class ApplicationsController {
   constructor(
     private readonly applicationsService: ApplicationsService,
-    @Inject('RABBITMQ_SERVICE') private readonly client: ClientProxy,
+    // Saca el cliente RabbitMQ de aquí
   ) {}
 
-  @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() createApplicationDto: CreateApplicationDto) {
-    this.client.emit('student_applied', createApplicationDto);
-    return { message: 'Application is being processed.' };
+  async create(
+    @Body() createApplicationDto: CreateApplicationDto,
+    @Request() req,
+  ) {
+    const userId = req.user.userId; // O req.user.sub, lo que sea tu payload
+    if (!userId) {
+      throw new ForbiddenException('Token de usuario inválido');
+    }
+    
+    // ¡LLAMA AL SERVICIO DIRECTAMENTE!
+    // El servicio ahora hará las validaciones (404, 409)
+    // y emitirá el evento a RabbitMQ.
+    return this.applicationsService.create(createApplicationDto, userId);
   }
 
-  // --- CONSUMIDOR ---
+  // SACA el consumidor @EventPattern de tu controlador.
+  // El consumidor de RabbitMQ debe ser un servicio separado o estar
+  // en un microservicio, no en el controlador HTTP.
+  /*
   @EventPattern('student_applied')
-  async handleStudentApplication(@Payload() data: CreateApplicationDto) {
-    console.log('Processing new student application from queue');
-    try {
-      await this.applicationsService.create(data);
-      console.log('Student application successfully saved.');
-    } catch (error) {
-      console.error('Failed to save student application from queue', error);
-    }
-  }
+  async handleStudentApplication(...) { ... }
+  */
 
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {

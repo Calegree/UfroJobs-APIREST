@@ -1,3 +1,5 @@
+import { CompanyState } from "../entities/company.entity";
+
 export class CreateCompanyDto {
   name: string;
   rut: string;
@@ -8,4 +10,5 @@ export class CreateCompanyDto {
   description: string;
   web?: string;
   documents?: string[];
+  state?: CompanyState;
 }

@@ -2,14 +2,17 @@ import {
   Injectable,
   ConflictException,
   NotFoundException,
+  Inject,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Application } from './entities/application.entity';
 import { CreateApplicationDto } from './dto/create-application.dto';
 import { User } from '../users/users.entity';
-import { JobOffer } from '../job_offers/entities/job_offer.entity';
+import { JobOffer, JobOfferState } from '../job_offers/entities/job_offer.entity';
 import { S3Service } from '../s3/s3.service';
+import { ClientProxy, EventPattern, Payload } from '@nestjs/microservices'; // Importa ClientProxy
 
 @Injectable()
 export class ApplicationsService {
@@ -21,21 +24,26 @@ export class ApplicationsService {
     @InjectRepository(JobOffer)
     private jobOffersRepository: Repository<JobOffer>,
     private s3Service: S3Service,
-  ) {}
+    @Inject('RABBITMQ_SERVICE') private readonly client: ClientProxy, // Inyecta RabbitMQ aquí
+  ) { }
 
-  async create(createApplicationDto: CreateApplicationDto) {
-    const { userId, jobOfferId , cvKey} = createApplicationDto;
+  async create(createApplicationDto: CreateApplicationDto, userId: number) {
+    const { jobOfferId, cvKey } = createApplicationDto;
 
     const user = await this.usersRepository.findOneBy({ id: userId });
     if (!user) {
       throw new NotFoundException(`User with ID ${userId} not found`);
     }
 
-    const jobOffer = await this.jobOffersRepository.findOneBy({
-      id: jobOfferId,
+    const jobOffer = await this.jobOffersRepository.findOne({
+      where: { id: jobOfferId },
+      relations: ['company'], // Carga la compañía para la notificación
     });
     if (!jobOffer) {
-      throw new NotFoundException(`Job offer with ID ${jobOfferId} not found`);
+      throw new NotFoundException(`Job offer with ID ${jobOfferId} not found`); // Esto soluciona IT-2
+    }
+    if (jobOffer.state !== JobOfferState.ACTIVO) {
+      throw new BadRequestException('Job offer is not active');
     }
 
     const existingApplication = await this.applicationsRepository.findOne({
@@ -49,7 +57,7 @@ export class ApplicationsService {
     const applicationCvKey = cvKey || user.cvKey;
 
     if (!applicationCvKey) {
-      throw new ConflictException('No CV found for this application');
+      throw new BadRequestException('No CV found for this application');
     }
 
     const application = this.applicationsRepository.create({
@@ -58,10 +66,32 @@ export class ApplicationsService {
       cvKey: applicationCvKey,
     });
 
+
     const newApplication = await this.applicationsRepository.save(application);
 
-    return this.findOne(newApplication.id);
+    this.client.emit('student_applied', {
+      applicationId: newApplication.id,
+      userId: userId,
+      jobOfferId: jobOfferId,
+      companyId: jobOffer.company.id,
+    });
+
+    return {
+      id: newApplication.id,
+      status: newApplication.status,
+      createdAt: newApplication.applicationDate
+    };
   }
+  @EventPattern('student_applied')
+  async handleStudentApplication() {
+    console.log('Processing new student application from queue');
+    try {
+      console.log('Student application successfully saved.');
+    } catch (error) {
+      console.error('Failed to save student application from queue', error);
+    }
+  }
+
 
   async findOne(id: number) {
     const app = await this.applicationsRepository.findOne({
