@@ -116,6 +116,62 @@ describe('ApplicationsController (e2e)', () => {
 
     describe('POST /applications (Flujo de Postulación)', () => {
 
+        it('IT-5: Postulación Exitosa (Camino Feliz)', async () => {
+            console.log('\n\n--- [IT-5: Postulación Exitosa (Camino Feliz)] ---');
+            const payload = {
+                jobOfferId: jobOffer.id,
+                cvKey: `cvs/${student.id}/test-cv.pdf`,
+            };
+
+            console.log('Paso 1: Enviando POST /applications con payload y token.');
+            const response = await request(app.getHttpServer())
+                .post('/applications')
+                .set('Authorization', `Bearer ${studentToken}`)
+                .send(payload)
+                .expect(201);
+            
+            console.log('Resultado 1: Respuesta 201 creado con el ID de postulación.');
+            expect(response.body).toBeDefined();
+            expect(response.body.id).toBeDefined();
+            expect(response.body.status).toEqual(ApplicationStatus.PENDING);
+
+            const dbApplication = await applicationRepository.findOneBy({ id: response.body.id });
+            expect(dbApplication).toBeDefined();
+            expect(dbApplication?.userId).toEqual(student.id);
+            expect(dbApplication?.jobOfferId).toEqual(jobOffer.id);
+            console.log('Resultado 2: Se registra una nueva entrada en la tabla postulaciones con estado PENDIENTE.');
+            console.log('Resultado 3: El archivo se almacena en el bucket cvs. [STUB CHECK]');
+            console.log('Resultado 4: La cola q_notifica_empresa recibe un mensaje. [STUB CHECK]');
+            console.log('--- [FIN IT-5] ---');
+        });
+
+        it('IT-6: Error - Postulación a Oferta de Empresa NO APROBADA (403)', async () => {
+            console.log('\n\n--- [IT-6: Error - Postulación a Oferta de Empresa NO APROBADA] ---');
+            // Precondición: Cambiar estado de la empresa a PENDIENTE
+            await companyRepository.update(company.id, { state: CompanyState.PENDIENTE });
+            console.log('Precondición: Empresa en estado PENDIENTE.');
+
+            const payload = {
+                jobOfferId: jobOffer.id,
+                cvKey: `cvs/${student.id}/test-cv.pdf`,
+            };
+
+            console.log('Paso 1: Enviando POST /applications a oferta de empresa no aprobada.');
+            await request(app.getHttpServer())
+                .post('/applications')
+                .set('Authorization', `Bearer ${studentToken}`)
+                .send(payload)
+                .expect(403);
+            
+            console.log('Resultado 1: Respuesta 403 Forbidden recibida.');
+
+            const count = await applicationRepository.count();
+            expect(count).toBe(0);
+            console.log('Resultado 2: Ningún registro nuevo en la tabla postulaciones.');
+            console.log('Resultado 3: La cola q_notifica_empresa permanece sin mensajes. [STUB CHECK]');
+            console.log('--- [FIN IT-6] ---');
+        });
+
         it('IT-1: debe crear una postulación (201 Created) con un payload JSON válido', async () => {
             const payload = {
                 jobOfferId: jobOffer.id,
