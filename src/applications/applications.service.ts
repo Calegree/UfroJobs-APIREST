@@ -4,6 +4,7 @@ import {
   NotFoundException,
   Inject,
   BadRequestException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -12,7 +13,8 @@ import { CreateApplicationDto } from './dto/create-application.dto';
 import { User } from '../users/users.entity';
 import { JobOffer, JobOfferState } from '../job_offers/entities/job_offer.entity';
 import { S3Service } from '../s3/s3.service';
-import { ClientProxy, EventPattern } from '@nestjs/microservices';  
+import { ClientProxy, EventPattern } from '@nestjs/microservices';
+import { CompanyState } from '../companies/entities/company.entity';
 
 @Injectable()
 export class ApplicationsService {
@@ -44,6 +46,10 @@ export class ApplicationsService {
     }
     if (jobOffer.state !== JobOfferState.ACTIVO) {
       throw new BadRequestException('Job offer is not active');
+    }
+
+    if (jobOffer.company.state !== CompanyState.ACTIVO) {
+      throw new ForbiddenException('Cannot apply to a job from an unapproved company');
     }
 
     const existingApplication = await this.applicationsRepository.findOne({

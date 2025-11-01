@@ -38,6 +38,8 @@ describe('CompaniesController (e2e) - Flujo 2: Registro de Empresa', () => {
   beforeEach(async () => {
     // Limpiar mocks y base de datos
     mockRabbitMQ.emit.mockClear();
+    // Eliminar en el orden correcto para evitar violaciones de FK
+    await companyRepository.query('DELETE FROM "job_offers"');
     await companyRepository.query('DELETE FROM "companies"');
   });
 
