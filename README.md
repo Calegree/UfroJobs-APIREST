@@ -162,12 +162,6 @@ npm run start:prod
 ## Tests
 El proyecto cuenta con tests unitarios y tests end-to-end (E2E) para garantizar la calidad y el correcto funcionamiento de la API.
 
-### Tests Unitarios
-Para ejecutar los tests unitarios:
-
-```bash
-npm run test
-```
 
 ### Tests End-to-End (E2E)
 Los tests E2E están listos y se pueden ejecutar para probar los flujos completos de la aplicación. Estos tests simulan las solicitudes HTTP a los endpoints de la API y verifican las respuestas.
