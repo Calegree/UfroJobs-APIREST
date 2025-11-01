@@ -7,7 +7,7 @@ import { Company, CompanyState } from '../src/companies/entities/company.entity'
 import { User, UserRole, UserState } from '../src/users/users.entity';
 import { JobOffer } from '../src/job_offers/entities/job_offer.entity';
 import { Application } from '../src/applications/entities/application.entity';
-import { Repository } from 'typeorm';
+import { Connection, Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { EmailService } from '../src/email/email.service';
 import { ClientProxy } from '@nestjs/microservices';
@@ -32,6 +32,7 @@ describe('Admin/Dashboard Flow (e2e)', () => {
   let adminToken: string;
   let pendingCompany: Company;
   let adminUser: User;
+  let connection: Connection;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -57,9 +58,11 @@ describe('Admin/Dashboard Flow (e2e)', () => {
     jobOfferRepository = moduleFixture.get(getRepositoryToken(JobOffer));
     applicationRepository = moduleFixture.get(getRepositoryToken(Application));
     jwtService = moduleFixture.get<JwtService>(JwtService);
+    connection = moduleFixture.get(Connection);
   });
 
   afterAll(async () => {
+    await connection.close();
     await app.close();
   });
 
