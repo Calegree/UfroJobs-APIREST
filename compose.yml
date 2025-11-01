@@ -1,0 +1,45 @@
+services:
+  database:
+    image: postgres:15
+    restart: always
+    ports:
+      - "5432:5432"
+    networks:
+      - ufrojobs-network
+    volumes:
+      - database-data:/var/lib/postgresql/data
+    env_file:
+      - ./.env.db
+  minios3:
+      image: minio/minio:latest
+      restart: always  
+      ports:
+        - "9000:9000"
+        - "9001:9001"
+      command: server /data --console-address ":9001"
+      volumes:
+        - minios3-data:/data
+      env_file:
+        - ./.env.minio
+      networks:
+        - ufrojobs-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    env_file:
+      - ./.env.rabbit
+    networks:
+      - ufrojobs-network
+
+networks:
+  ufrojobs-network:
+    driver: bridge
+volumes:
+  database-data:
+    driver: local
+  minios3-data:
+    driver: local
