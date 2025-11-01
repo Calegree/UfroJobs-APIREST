@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { Transport } from '@nestjs/microservices';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -23,6 +24,15 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
+
+  // Configuración global del ValidationPipe
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true, // Ignora los datos que no están en el DTO
+      forbidNonWhitelisted: true, // Lanza un error si se envían datos extra
+      transform: true, // Transforma los payloads a instancias de DTO
+    }),
+  );
 
   // Conectar el microservicio para escuchar eventos de RabbitMQ
   app.connectMicroservice({
