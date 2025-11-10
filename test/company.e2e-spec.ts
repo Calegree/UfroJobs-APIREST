@@ -76,7 +76,7 @@ describe('CompaniesController (e2e) - Flujo 2: Registro de Empresa', () => {
     expect(dbCompany).toBeDefined();
     console.log('Verificación: La empresa existe en la base de datos.');
 
-    // No podemos verificar S3 directamente en este test, pero asumimos que el servicio fue llamado.
+   
     console.log('Resultado 3: (Asumido) Documento almacenado en S3.');
 
     expect(mockRabbitMQ.emit).toHaveBeenCalledWith('company_created', { companyId: dbCompany!.id });
