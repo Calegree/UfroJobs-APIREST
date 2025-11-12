@@ -10,6 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Application } from './entities/application.entity';
 import { CreateApplicationDto } from './dto/create-application.dto';
+import { UpdateApplicationDto } from './dto/update-application.dto';
 import { User } from '../users/users.entity';
 import { JobOffer, JobOfferState } from '../job_offers/entities/job_offer.entity';
 import { S3Service } from '../s3/s3.service';
@@ -130,5 +131,32 @@ export class ApplicationsService {
         company: app.jobOffer.company.name,
       },
     };
+  }
+
+  async remove(id: number) {
+    const application = await this.findOne(id);
+    if (!application) {
+      throw new NotFoundException(`Application with ID ${id} not found`);
+    }
+    return this.applicationsRepository.remove(application as any);
+  }
+
+  async findAllByJobOffer(jobOfferId: number): Promise<Application[]> {
+    return this.applicationsRepository.find({
+      where: { jobOffer: { id: jobOfferId } },
+      relations: ['user'],
+    });
+  }
+
+  async updateStatus(
+    id: number,
+    updateApplicationDto: UpdateApplicationDto,
+  ): Promise<Application> {
+    const application = await this.applicationsRepository.findOneBy({ id });
+    if (!application) {
+      throw new NotFoundException(`Application with ID ${id} not found`);
+    }
+    Object.assign(application, updateApplicationDto);
+    return this.applicationsRepository.save(application);
   }
 }
