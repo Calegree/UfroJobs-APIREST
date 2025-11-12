@@ -7,8 +7,8 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcryptjs';
 import { LoginDto, RegisterCompanyDto, RegisterDto } from './dto/auth.dto';
-import { UserRole, UserState } from 'src/users/users.entity';
-import { CompaniesService } from 'src/companies/companies.service';
+import { UserRole, UserState } from '../users/users.entity';
+import { CompaniesService } from '../companies/companies.service';
 
 @Injectable()
 export class AuthService {

@@ -40,4 +40,9 @@ export class EmailService {
 
     await this.transporter.sendMail(mailOptions);
   }
+
+  isValidEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  }
 }
