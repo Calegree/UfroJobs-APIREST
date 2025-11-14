@@ -1,5 +1,5 @@
 import { Given, When, Then } from '@cucumber/cucumber';
-import request from 'supertest';
+// ...existing code...
 import { strict as assert } from 'assert';
 
 const apiUrl = 'http://localhost:3000';
@@ -11,9 +11,8 @@ Given('el usuario {string} y la oferta {string} existen', async function (email:
 });
 
 When('el usuario postula a la oferta {string}', async function (titulo: string) {
-  response = await request(apiUrl)
-    .post('/applications')
-    .send({ oferta: titulo });
+  await this.initApp();
+  response = await this.request.post('/applications').send({ oferta: titulo });
 });
 
 Then('la postulación debe existir en la base de datos', async function () {
@@ -21,28 +20,19 @@ Then('la postulación debe existir en la base de datos', async function () {
   // ...
 });
 
-Given('el usuario {string} tiene postulaciones', async function (email: string) {
-  // Crear postulaciones si no existen
-  // ...
-});
-
 When('consulto las postulaciones del usuario', async function () {
-  response = await request(apiUrl)
-    .get('/applications?user=user@test.com');
+  await this.initApp();
+  response = await this.request.get('/applications?user=user@test.com');
 });
 
 Then('la respuesta debe contener las postulaciones', function () {
   assert.ok(Array.isArray(response.body));
 });
 
-Given('la postulación del usuario {string} a {string} existe', async function (email: string, titulo: string) {
-  // Crear postulación si no existe
-  // ...
-});
 
 When('retiro la postulación', async function () {
-  response = await request(apiUrl)
-    .delete('/applications/1'); // Cambia por el id correcto
+  await this.initApp();
+  response = await this.request.delete('/applications/1'); // Cambia por el id correcto
 });
 
 Then('la postulación no debe existir en la base de datos', async function () {

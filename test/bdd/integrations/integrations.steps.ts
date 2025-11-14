@@ -1,14 +1,10 @@
 import { Given, When, Then } from '@cucumber/cucumber';
-import request from 'supertest';
+// ...existing code...
 import { strict as assert } from 'assert';
 
 const apiUrl = 'http://localhost:3000';
 let response: any;
 
-Given('el usuario {string} existe', async function (email: string) {
-  // Crear usuario si no existe
-  // ...
-});
 
 When('sube el archivo {string} a S3', async function (archivo: string) {
   // Simula la subida de archivo
@@ -20,14 +16,10 @@ Then('el archivo debe estar disponible en S3', async function () {
   // ...
 });
 
-Given('el archivo {string} existe en S3', async function (archivo: string) {
-  // Simula existencia de archivo en S3
-  // ...
-});
 
 When('el usuario descarga el archivo {string}', async function (archivo: string) {
-  response = await request(apiUrl)
-    .get(`/s3/download/${archivo}`);
+  await this.initApp();
+  response = await this.request.get(`/s3/download/${archivo}`);
 });
 
 Then('la respuesta debe contener el archivo', function () {
@@ -36,12 +28,12 @@ Then('la respuesta debe contener el archivo', function () {
 });
 
 When('se crea una empresa', async function () {
-  response = await request(apiUrl)
-    .post('/companies')
-    .send({ email: 'empresa@test.com' });
+  await this.initApp();
+  response = await this.request.post('/companies').send({ email: 'empresa@test.com' });
 });
 
 Then('se debe emitir un mensaje {string} a RabbitMQ', async function (mensaje: string) {
   // Verifica que se emitió el mensaje
   // ...
 });
+// Steps movidos a common.steps.ts

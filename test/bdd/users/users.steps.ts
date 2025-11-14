@@ -1,30 +1,14 @@
 import { Given, When, Then } from '@cucumber/cucumber';
-import request from 'supertest';
+// ...existing code...
 import { strict as assert } from 'assert';
 
 const apiUrl = 'http://localhost:3000';
 let response: any;
-
-When('registro un usuario con email {string}', async function (email: string) {
-  response = await request(apiUrl)
-    .post('/users')
-    .send({ email });
-});
-
-Then('el usuario debe existir en la base de datos', async function () {
-  // Verifica existencia del usuario
-  // ...
-});
-
-Given('el usuario {string} existe', async function (email: string) {
-  // Crear usuario si no existe
-  // ...
-});
+// Steps movidos a common.steps.ts
 
 When('actualizo el nombre del usuario a {string}', async function (nombre: string) {
-  response = await request(apiUrl)
-    .put('/users/1') // Cambia por el id correcto
-    .send({ nombre });
+  await this.initApp();
+  response = await this.request.put('/users/1').send({ nombre });
 });
 
 Then('el usuario debe tener el nombre {string}', function (nombre: string) {
@@ -32,8 +16,8 @@ Then('el usuario debe tener el nombre {string}', function (nombre: string) {
 });
 
 When('elimino el usuario {string}', async function (email: string) {
-  response = await request(apiUrl)
-    .delete('/users/1'); // Cambia por el id correcto
+  await this.initApp();
+  response = await this.request.delete('/users/1'); // Cambia por el id correcto
 });
 
 Then('el usuario no debe existir en la base de datos', async function () {
@@ -42,8 +26,8 @@ Then('el usuario no debe existir en la base de datos', async function () {
 });
 
 When('consulto el perfil del usuario {string}', async function (email: string) {
-  response = await request(apiUrl)
-    .get('/users/1'); // Cambia por el id correcto
+  await this.initApp();
+  response = await this.request.get('/users/1'); // Cambia por el id correcto
 });
 
 Then('la respuesta debe contener los datos del usuario', function () {

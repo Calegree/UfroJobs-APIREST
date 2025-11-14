@@ -1,5 +1,5 @@
 import { Given, Then } from '@cucumber/cucumber';
-import request from 'supertest';
+// ...existing code...
 import { strict as assert } from 'assert';
 
 const apiUrl = 'http://localhost:3000';
