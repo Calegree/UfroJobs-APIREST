@@ -43,6 +43,9 @@ lerna-debug.log*
 .env.local.envdb
 .env.minio
 .env.rabbit
+.env.grafana
+.env.db
+
 
 # temp directory
 .temp

@@ -23,7 +23,6 @@ services:
         - ./.env.minio
       networks:
         - ufrojobs-network
-
   rabbitmq:
     image: rabbitmq:3-management
     restart: always
@@ -34,7 +33,53 @@ services:
       - ./.env.rabbit
     networks:
       - ufrojobs-network
+  api:
+    build: .
+    restart: always
+    ports: 
+      - "3000:3000"
+    env_file:
+      - ./.env
+    depends_on:
+      - database
+      - minios3
+      - rabbitmq
+    networks:
+      - ufrojobs-network
+  
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --web.enable-remote-write-receiver 
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - ufrojobs-network
 
+ 
+  grafana:
+    image: grafana/grafana:latest
+    container_name: ufrojobs_grafana
+    ports:
+      - "3001:3000" 
+    env_file:
+      - ./.env.grafana
+    depends_on:
+      - prometheus
+    networks:
+      - ufrojobs-network
+
+  k6:
+    image: grafana/k6:latest
+    networks:
+      - ufrojobs-network
+    volumes:
+      - ./:/scripts 
+    command: version
+    
 networks:
   ufrojobs-network:
     driver: bridge
