@@ -45,6 +45,7 @@ lerna-debug.log*
 .env.rabbit
 .env.grafana
 .env.db
+.env.prometheus
 
 
 # temp directory
