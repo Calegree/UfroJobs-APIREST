@@ -6,7 +6,7 @@ import { Application } from './entities/application.entity';
 import { JobOffer } from '../job_offers/entities/job_offer.entity';
 import { S3Module } from '../s3/s3.module';
 import { User } from '../users/users.entity';
-import { RabbitMQModule } from 'src/rabbitmq/rabbitmq.module';
+import { RabbitMQModule } from '../rabbitmq/rabbitmq.module';
 
 @Module({
   imports: [
