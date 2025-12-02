@@ -2,14 +2,10 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { AdminService } from './admin.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Company, CompanyState } from '../companies/entities/company.entity';
-import { Repository } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
-import { ClientProxy } from '@nestjs/microservices';
 
 describe('AdminService', () => {
   let service: AdminService;
-  let companyRepository: Repository<Company>;
-  let clientProxy: ClientProxy;
 
   const mockCompanyRepository = {
     findOne: jest.fn(),
@@ -37,10 +33,6 @@ describe('AdminService', () => {
     }).compile();
 
     service = module.get<AdminService>(AdminService);
-    companyRepository = module.get<Repository<Company>>(
-      getRepositoryToken(Company),
-    );
-    clientProxy = module.get<ClientProxy>('RABBITMQ_SERVICE');
   });
 
   afterEach(() => {
