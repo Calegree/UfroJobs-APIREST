@@ -7,7 +7,7 @@ export class S3Service {
     private readonly minioClient: Minio.Client;
     private readonly bucketName: string;
 
-    constructor(private configService: ConfigService) {
+    constructor(private readonly configService: ConfigService) {
         this.minioClient = new Minio.Client({
             endPoint: this.configService.get<string>('MINIO_ENDPOINT')!,
             port: +this.configService.get<number>('MINIO_PORT')!,
