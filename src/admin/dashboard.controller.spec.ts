@@ -7,7 +7,6 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { JobOffer } from '../job_offers/entities/job_offer.entity';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
-import { Repository } from 'typeorm';
 
 // Mock de los servicios y repositorios que usa el controlador
 const mockAdminService = {
