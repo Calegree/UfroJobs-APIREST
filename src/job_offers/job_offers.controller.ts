@@ -1,14 +1,15 @@
-import { Controller, Post, Body,  Inject } from '@nestjs/common';
-import { ClientProxy, EventPattern, Payload } from '@nestjs/microservices'; 
+import { Controller, Post, Body, Inject, UseGuards, Request } from '@nestjs/common';
+import { ClientProxy } from '@nestjs/microservices';
 import { JobOffersService } from './job_offers.service';
 import { CreateJobOfferDto } from './dto/create-job_offer.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('job-offers')
 export class JobOffersController {
   constructor(
     private readonly jobOffersService: JobOffersService,
     @Inject('RABBITMQ_SERVICE') private readonly client: ClientProxy,
-  ) {}
+  ) { }
 
   @Post('test-postulacion')
   testPostulacion() {
@@ -21,20 +22,13 @@ export class JobOffersController {
     return { message: 'Evento de postulación enviado a la cola.', data: postulacion };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Body() createJobOfferDto: CreateJobOfferDto) {
-    this.client.emit('job_offer_created', createJobOfferDto);
-    return { message: 'Job offer is being processed.' };
+  async create(@Body() createJobOfferDto: CreateJobOfferDto, @Request() req) {
+
+    const companyId = req.user.companyId || req.user.userId;
+    createJobOfferDto.companyId = companyId;
+    return await this.jobOffersService.create(createJobOfferDto);
   }
 
-  @EventPattern('job_offer_created')
-  async handleJobOfferCreated(@Payload() data: CreateJobOfferDto) {
-    console.log('Processing new job offer from queue:', data.title);
-    try {
-      await this.jobOffersService.create(data); 
-      console.log('Job offer successfully saved.');
-    } catch (error) {
-      console.error('Failed to save job offer from queue', error);
-    }
-  }
 }

@@ -18,7 +18,7 @@ describe('JobOffersService', () => {
     id: 1,
     name: 'Test Co',
     email: 'test@co.com',
-    pass: 'password',
+    password: 'password',
     rut: '12345678-9',
     phone: '123456789',
     localization: 'Test City',
@@ -75,7 +75,13 @@ describe('JobOffersService', () => {
         {
           provide: getRepositoryToken(User),
           useValue: {
-            findByIds: jest.fn(),
+            findBy: jest.fn(),
+          },
+        },
+        {
+          provide: 'RABBITMQ_SERVICE',
+          useValue: {
+            emit: jest.fn(),
           },
         },
       ],
@@ -99,6 +105,8 @@ describe('JobOffersService', () => {
         location: 'Remote',
         tags: ['typescript', 'nestjs'],
         salary: '100k',
+        worktime: 'Full-time',
+        modality: JobOfferModality.REMOTO,
         publication_date: new Date(),
         status: 'active',
         companyId: 1,
@@ -155,7 +163,7 @@ describe('JobOffersService', () => {
   describe('findApplicantsByOffer', () => {
     it('should return applicants for an offer', async () => {
       jest.spyOn(jobOfferRepository, 'findOne').mockResolvedValue(mockJobOffer);
-      jest.spyOn(userRepository, 'findByIds').mockResolvedValue([mockUser]);
+      jest.spyOn(userRepository, 'findBy').mockResolvedValue([mockUser]);
       const result = await service.findApplicantsByOffer(1);
       expect(result).toEqual([mockUser]);
     });

@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { JobOffersController } from './job_offers.controller';
 import { JobOffersService } from './job_offers.service';
-import { ClientProxy } from '@nestjs/microservices';
 
 describe('JobOffersController', () => {
   let controller: JobOffersController;
