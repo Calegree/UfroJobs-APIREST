@@ -9,6 +9,7 @@ import * as bcrypt from 'bcryptjs';
 import { LoginDto, RegisterCompanyDto, RegisterDto } from './dto/auth.dto';
 import { UserRole, UserState } from '../users/users.entity';
 import { CompaniesService } from '../companies/companies.service';
+import { CompanyState } from '../companies/entities/company.entity';
 
 @Injectable()
 export class AuthService {
@@ -26,6 +27,14 @@ export class AuthService {
     return null;
   }
 
+  async validateCompany(email: string, password: string) {
+    const company = await this.companiesService.findByEmail(email);
+    if (company && (await bcrypt.compare(password, company.password))) {
+      return company;
+    }
+    return null;
+  }
+
   async login(dto: LoginDto) {
     const user = await this.validateUser(dto.email, dto.password);
     if (!user) throw new UnauthorizedException('Credenciales inválidas');
@@ -35,6 +44,17 @@ export class AuthService {
       user: { id: user.id, role: user.role },
     };
   }
+
+  async loginCompany(dto: LoginDto) {
+    const company = await this.validateCompany(dto.email, dto.password);
+    if (!company) throw new UnauthorizedException('Credenciales inválidas');
+    const payload = { sub: company.id, companyId: company.id, role: 'company' };
+    return {
+      access_token: this.jwtService.sign(payload),
+      company: { id: company.id, name: company.name, email: company.email },
+    };
+  }
+
 
   async register(dto: RegisterDto) {
     const exists = await this.usersService.findByEmail(dto.email);
@@ -58,7 +78,11 @@ export class AuthService {
     });
 
 
-    return user;
+    const payload = { sub: user.id, role: user.role };
+    return {
+      access_token: this.jwtService.sign(payload),
+      user: { id: user.id, role: user.role },
+    };
   }
 
   async registerCompany(dto: RegisterCompanyDto) {
@@ -66,7 +90,7 @@ export class AuthService {
     if (exists)
       throw new ConflictException('El correo ya se encuentra registrado.');
 
-    const hash = await bcrypt.hash(dto.pass, 10);
+    const hash = await bcrypt.hash(dto.password, 10);
     const company = await this.companiesService.create({
       name: dto.name,
       phone: dto.phone,
@@ -76,9 +100,14 @@ export class AuthService {
       localization: dto.localization,
       description: dto.description,
       documents: dto.documentKeys,
-      pass: hash,
+      password: hash,
+      state: process.env.TEST_MODE === "true" ? CompanyState.ACTIVO : CompanyState.PENDIENTE,
     });
-    return company;
+    const payload = { sub: company.id, companyId: company.id, role: 'company' };
+    return {
+      access_token: this.jwtService.sign(payload),
+      company: { id: company.id, name: company.name, email: company.email },
+    };
   }
 }
 

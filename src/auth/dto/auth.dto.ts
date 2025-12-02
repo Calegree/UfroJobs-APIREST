@@ -64,7 +64,7 @@ export class RegisterCompanyDto {
 
   @IsString()
   @MinLength(8)
-  pass: string;
+  password: string;
 
   @IsArray()
   @IsString({ each: true })

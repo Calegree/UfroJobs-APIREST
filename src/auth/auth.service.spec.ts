@@ -115,6 +115,7 @@ describe('AuthService', () => {
       jest.spyOn(usersService, 'findByEmail').mockResolvedValue(null);
       (bcrypt.hash as jest.Mock).mockResolvedValue(hashedPassword);
       jest.spyOn(usersService, 'create').mockResolvedValue(createdUser as any);
+      jest.spyOn(jwtService, 'sign').mockReturnValue('test_token');
 
       const result = await service.register(registerDto);
 
@@ -132,7 +133,10 @@ describe('AuthService', () => {
         rut: registerDto.studentId,
         skills: registerDto.skills,
       });
-      expect(result).toEqual(createdUser);
+      expect(result).toEqual({
+        access_token: 'test_token',
+        user: { id: 1, role: UserRole.STUDENT },
+      });
     });
 
     it('should throw ConflictException if email already exists', async () => {
@@ -155,7 +159,7 @@ describe('AuthService', () => {
       const registerDto: RegisterCompanyDto = {
         name: 'Test Company',
         email: 'company@test.com',
-        pass: 'password',
+        password: 'password',
         phone: '987654321',
         web: 'test.com',
         rut: '12345678-9',
@@ -164,16 +168,17 @@ describe('AuthService', () => {
         documentKeys: ['doc1.pdf'],
       };
       const hashedPassword = 'hashedpassword';
-      const createdCompany = { id: 1, ...registerDto };
+      const createdCompany = { id: 1, ...registerDto, state: 'pendiente' };
 
       jest.spyOn(companiesService, 'findByEmail').mockResolvedValue(null);
       (bcrypt.hash as jest.Mock).mockResolvedValue(hashedPassword);
       jest.spyOn(companiesService, 'create').mockResolvedValue(createdCompany as any);
+      jest.spyOn(jwtService, 'sign').mockReturnValue('test_token');
 
       const result = await service.registerCompany(registerDto);
 
       expect(companiesService.findByEmail).toHaveBeenCalledWith(registerDto.email);
-      expect(bcrypt.hash).toHaveBeenCalledWith(registerDto.pass, 10);
+      expect(bcrypt.hash).toHaveBeenCalledWith(registerDto.password, 10);
       expect(companiesService.create).toHaveBeenCalledWith({
         name: registerDto.name,
         phone: registerDto.phone,
@@ -183,13 +188,17 @@ describe('AuthService', () => {
         localization: registerDto.localization,
         description: registerDto.description,
         documents: registerDto.documentKeys,
-        pass: hashedPassword,
+        password: hashedPassword,
+        state: 'pendiente',
       });
-      expect(result).toEqual(createdCompany);
+      expect(result).toEqual({
+        access_token: 'test_token',
+        company: { id: 1, name: 'Test Company', email: 'company@test.com' },
+      });
     });
 
     it('should throw ConflictException if company email already exists', async () => {
-      const registerDto: RegisterCompanyDto = { name: 'Test', email: 'company@test.com', pass: 'password', phone: '', web: '', rut: '', localization: '', description: '', documentKeys: [] };
+      const registerDto: RegisterCompanyDto = { name: 'Test', email: 'company@test.com', password: 'password', phone: '', web: '', rut: '', localization: '', description: '', documentKeys: [] };
       jest.spyOn(companiesService, 'findByEmail').mockResolvedValue({} as any);
       await expect(service.registerCompany(registerDto)).rejects.toThrow(ConflictException);
     });

@@ -66,7 +66,7 @@ describe('AuthController', () => {
         rut: '12.345.678-9',
         localization: 'Someplace',
         description: 'A test company',
-        pass: 'password123',
+        password: 'password123',
         documentKeys: ['key1', 'key2'],
       };
       await controller.registerCompany(registerCompanyDto);

@@ -15,6 +15,11 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
+  @Post('login-company')
+  loginCompany(@Body() dto: LoginDto) {
+    return this.authService.loginCompany(dto);
+  }
+
   @Post('register')
   register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
@@ -27,3 +32,4 @@ export class AuthController {
     return this.authService.registerCompany(dto);
   }
 }
+
