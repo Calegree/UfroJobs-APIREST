@@ -1,38 +1,33 @@
-# Etapa 1: build
+
 FROM node:20-alpine AS builder
 
-# Establecer el directorio de trabajo
 WORKDIR /app
 
-# Copiar solo archivos necesarios para instalar dependencias
 COPY package*.json ./
 
-# Instalar dependencias de producción y desarrollo
-RUN npm install
+RUN npm ci --ignore-scripts
 
-# Copiar todo el proyecto
-COPY . .
+COPY tsconfig*.json ./
+COPY nest-cli.json ./
+COPY src ./src
+COPY eslint.config.mjs ./
 
-RUN echo "ANTES DE BUILD:" && ls -R /app
-
-# Compilar el proyecto (Nest -> TypeScript -> JavaScript)
 RUN npm run build
 
-RUN echo "DESPUÉS DE BUILD:" && ls -R /app
+RUN npm prune --omit=dev
 
-# Etapa 2: imagen final
 FROM node:20-alpine AS production
 
-# Crear directorio de trabajo
+RUN addgroup -S -g 1001 app && \
+    adduser -S -u 1001 app -G app
+
 WORKDIR /app
 
-# Copiar solo los archivos necesarios desde el build
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
+COPY --from=builder --chown=root:root --chmod=755 /app/package*.json ./
+COPY --from=builder  --chown=root:root --chmod=755 /app/node_modules ./node_modules
+COPY --from=builder --chown=root:root --chmod=755 /app/dist ./dist
 
-# Puerto expuesto (ajústalo según tu app, normalmente 3000)
 EXPOSE 3000
+USER app
 
-# Comando para ejecutar la app
 CMD ["node", "dist/main"]
