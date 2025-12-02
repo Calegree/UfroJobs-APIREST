@@ -42,7 +42,9 @@ export class EmailService {
   }
 
   isValidEmail(email: string): boolean {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // Use length-bounded character classes to prevent catastrophic backtracking.
+    // Local part max 64, domain part max 255, require a simple alphabetic TLD of at least 2 chars.
+    const emailRegex = /^[^\s@]{1,64}@[^\s@]{1,255}\.[A-Za-z]{2,}$/;
     return emailRegex.test(email);
   }
 }
