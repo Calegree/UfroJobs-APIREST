@@ -17,7 +17,7 @@ describe('CompaniesService', () => {
     id: 1,
     name: 'Test Co',
     email: 'test@co.com',
-    pass: 'password',
+    password: 'password',
     rut: '12345678-9',
     phone: '123456789',
     localization: 'Test City',
@@ -64,7 +64,7 @@ describe('CompaniesService', () => {
       const createDto: CreateCompanyDto = {
         name: 'Test Co',
         email: 'test@co.com',
-        pass: 'password',
+        password: 'password',
         rut: '12345678-9',
         phone: '123456789',
         localization: 'Test City',
@@ -85,7 +85,7 @@ describe('CompaniesService', () => {
       const createDto: CreateCompanyDto = {
         name: 'Test Co',
         email: 'test@co.com',
-        pass: 'password',
+        password: 'password',
         rut: '12345678-9',
         phone: '123456789',
         localization: 'Test City',

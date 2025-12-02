@@ -18,6 +18,13 @@ export class CompaniesController {
     return this.companiesService.findAll();
   }
 
+  @UseGuards(JwtAuthGuard)
+  @Get('me')
+  async getMyProfile(@Req() req) {
+    const companyId = req.user.userId || req.user.companyId;
+    return this.companiesService.findOne(companyId);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.companiesService.findOne(Number(id));
@@ -36,12 +43,5 @@ export class CompaniesController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.companiesService.remove(Number(id));
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('me')
-  async getMyProfile(@Req() req) {
-    const companyId = req.user.userId || req.user.companyId;
-    return this.companiesService.findOne(companyId);
   }
 }

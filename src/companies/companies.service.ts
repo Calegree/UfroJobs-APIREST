@@ -30,7 +30,13 @@ export class CompaniesService {
     const company = this.companyRepo.create(createCompanyDto);
     const newCompany = await this.companyRepo.save(company);
 
-    this.rabbitClient.emit('company_created', { companyId: newCompany.id });
+    // Emit event asynchronously without blocking the response
+    try {
+      this.rabbitClient.emit('company_created', { companyId: newCompany.id });
+    } catch (error) {
+      console.error('Failed to emit company_created event:', error);
+      // Don't throw - the company was created successfully even if the event fails
+    }
 
     return newCompany;
   }

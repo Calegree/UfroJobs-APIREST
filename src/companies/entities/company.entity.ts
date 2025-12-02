@@ -32,7 +32,7 @@ export class Company {
   @Column()
   @IsNotEmpty()
   @IsString()
-  pass: string;
+  password: string;
 
   @Column()
   @IsNotEmpty()
