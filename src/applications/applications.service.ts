@@ -21,12 +21,12 @@ import { CompanyState } from '../companies/entities/company.entity';
 export class ApplicationsService {
   constructor(
     @InjectRepository(Application)
-    private applicationsRepository: Repository<Application>,
+    private readonly applicationsRepository: Repository<Application>,
     @InjectRepository(User)
-    private usersRepository: Repository<User>,
+    private readonly usersRepository: Repository<User>,
     @InjectRepository(JobOffer)
-    private jobOffersRepository: Repository<JobOffer>,
-    private s3Service: S3Service,
+    private readonly jobOffersRepository: Repository<JobOffer>,
+    private readonly s3Service: S3Service,
     @Inject('RABBITMQ_SERVICE') private readonly client: ClientProxy, 
   ) { }
 
