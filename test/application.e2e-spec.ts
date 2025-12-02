@@ -3,21 +3,17 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { JwtService } from '@nestjs/jwt';
-import { UserRole, UserState } from '../src/users/users.entity';
-import { CompanyState } from '../src/companies/entities/company.entity';
-import { JobOfferModality, JobOfferState } from '../src/job_offers/entities/job_offer.entity';
-import { ApplicationStatus } from '../src/applications/entities/application.entity';
+import { UserRole, UserState, User } from '../src/users/users.entity';
+import { CompanyState, Company } from '../src/companies/entities/company.entity';
+import { JobOffer, JobOfferModality, JobOfferState } from '../src/job_offers/entities/job_offer.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Application } from '../src/applications/entities/application.entity';
-import { User } from '../src/users/users.entity';
-import { Company } from '../src/companies/entities/company.entity';
-import { JobOffer } from '../src/job_offers/entities/job_offer.entity';
+import { Application, ApplicationStatus } from '../src/applications/entities/application.entity';
 
 class MockRabbitMQ {
-  emit() {
-    return {}; 
-  }
+    emit() {
+        return {};
+    }
 }
 
 describe('ApplicationsController (e2e)', () => {
@@ -37,9 +33,9 @@ describe('ApplicationsController (e2e)', () => {
     beforeAll(async () => {
         const moduleFixture: TestingModule = await Test.createTestingModule({
             imports: [AppModule],
-        }).overrideProvider('RABBITMQ_SERVICE') 
-        .useClass(MockRabbitMQ)
-        .compile();
+        }).overrideProvider('RABBITMQ_SERVICE')
+            .useClass(MockRabbitMQ)
+            .compile();
 
         app = moduleFixture.createNestApplication();
         app.useGlobalPipes(
@@ -57,7 +53,7 @@ describe('ApplicationsController (e2e)', () => {
         jobOfferRepository = moduleFixture.get(getRepositoryToken(JobOffer));
     });
 
-  
+
     beforeEach(async () => {
         await applicationRepository.query('DELETE FROM "applications"');
         await jobOfferRepository.query('DELETE FROM "job_offers"');
@@ -68,7 +64,7 @@ describe('ApplicationsController (e2e)', () => {
             userRepository.create({
                 name: 'Test Student E2E',
                 email: `student-e2e-${Date.now()}@ufromail.cl`,
-                password: 'hashedpassword', 
+                password: 'hashedpassword',
                 role: UserRole.STUDENT,
                 state: UserState.ACTIVE,
                 rut: '20.333.444-5',
@@ -81,7 +77,7 @@ describe('ApplicationsController (e2e)', () => {
             companyRepository.create({
                 name: 'E2E Test Company',
                 email: `company-e2e-${Date.now()}@test.com`,
-                pass: 'hashedpassword',
+                password: 'hashedpassword',
                 rut: '77.777.777-7',
                 phone: '+56977777777',
                 localization: 'Test City, Chile',
@@ -94,7 +90,7 @@ describe('ApplicationsController (e2e)', () => {
             jobOfferRepository.create({
                 title: 'E2E Test Offer',
                 description: 'A great job for a student.',
-                company: company, 
+                company: company,
                 location: 'Test City, Chile',
                 salary: '500000-700000 CLP',
                 requirements: ['Enrolled student', 'Basic programming skills'],
@@ -109,7 +105,7 @@ describe('ApplicationsController (e2e)', () => {
         studentToken = jwtService.sign(payload);
     });
 
-   
+
     afterAll(async () => {
         await app.close();
     });
@@ -129,7 +125,7 @@ describe('ApplicationsController (e2e)', () => {
                 .set('Authorization', `Bearer ${studentToken}`)
                 .send(payload)
                 .expect(201);
-            
+
             console.log('Resultado 1: Respuesta 201 creado con el ID de postulación.');
             expect(response.body).toBeDefined();
             expect(response.body.id).toBeDefined();
@@ -162,7 +158,7 @@ describe('ApplicationsController (e2e)', () => {
                 .set('Authorization', `Bearer ${studentToken}`)
                 .send(payload)
                 .expect(403);
-            
+
             console.log('Resultado 1: Respuesta 403 Forbidden recibida.');
 
             const count = await applicationRepository.count();
@@ -234,7 +230,7 @@ describe('ApplicationsController (e2e)', () => {
                 .post('/applications')
                 .set('Authorization', `Bearer ${studentToken}`)
                 .send(payload)
-                .expect(409); 
+                .expect(409);
         });
 
         it('debe retornar 401 Unauthorized si no se provee token', async () => {

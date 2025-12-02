@@ -7,10 +7,9 @@ import { Company, CompanyState } from '../src/companies/entities/company.entity'
 import { User, UserRole, UserState } from '../src/users/users.entity';
 import { JobOffer } from '../src/job_offers/entities/job_offer.entity';
 import { Application } from '../src/applications/entities/application.entity';
-import { Connection, Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { EmailService } from '../src/email/email.service';
-import { ClientProxy } from '@nestjs/microservices';
 
 // Mock para RabbitMQ
 const mockRabbitMQ = {
@@ -32,7 +31,7 @@ describe('Admin/Dashboard Flow (e2e)', () => {
   let adminToken: string;
   let pendingCompany: Company;
   let adminUser: User;
-  let connection: Connection;
+  let connection: DataSource;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -58,11 +57,11 @@ describe('Admin/Dashboard Flow (e2e)', () => {
     jobOfferRepository = moduleFixture.get(getRepositoryToken(JobOffer));
     applicationRepository = moduleFixture.get(getRepositoryToken(Application));
     jwtService = moduleFixture.get<JwtService>(JwtService);
-    connection = moduleFixture.get(Connection);
+    connection = moduleFixture.get<DataSource>(DataSource);
   });
 
   afterAll(async () => {
-    await connection.close();
+    await connection.destroy();
     await app.close();
   });
 
@@ -90,7 +89,7 @@ describe('Admin/Dashboard Flow (e2e)', () => {
     pendingCompany = await companyRepository.save(
       companyRepository.create({
         name: 'Pending Test Company',
-        pass: 'aSecurePassword123!',
+        password: 'aSecurePassword123!',
         rut: `11.111.111-1`,
         phone: '+56911111111',
         email: `pending-${Date.now()}@company.com`,
@@ -197,7 +196,7 @@ describe('Admin/Dashboard Flow (e2e)', () => {
       try {
         await adminController.handleCompanyApproved(eventPayload);
       } catch (error) {
-        // Se espera un error
+        console.error('Error in handleCompanyApproved (expected for this test):', error);
       }
 
       // Resultados Esperados

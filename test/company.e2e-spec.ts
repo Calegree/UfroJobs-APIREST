@@ -39,6 +39,8 @@ describe('CompaniesController (e2e) - Flujo 2: Registro de Empresa', () => {
     // Limpiar mocks y base de datos
     mockRabbitMQ.emit.mockClear();
     // Eliminar en el orden correcto para evitar violaciones de FK
+    // Primero child tables, luego parent tables
+    await companyRepository.query('DELETE FROM "applications"');
     await companyRepository.query('DELETE FROM "job_offers"');
     await companyRepository.query('DELETE FROM "companies"');
   });
@@ -51,7 +53,7 @@ describe('CompaniesController (e2e) - Flujo 2: Registro de Empresa', () => {
     console.log('\n\n--- [IT-1: Registro Exitoso de Empresa] ---');
     const createCompanyDto = {
       name: 'Test Company',
-      pass: 'aSecurePassword123!',
+      password: 'aSecurePassword123!',
       rut: '99.999.999-9',
       phone: '+56999999999',
       email: `test-${Date.now()}@company.com`,
@@ -89,7 +91,7 @@ describe('CompaniesController (e2e) - Flujo 2: Registro de Empresa', () => {
     const uniqueEmail = `duplicate-${Date.now()}@company.com`;
     const createCompanyDto = {
       name: 'Another Test Company',
-      pass: 'aSecurePassword123!',
+      password: 'aSecurePassword123!',
       rut: '22.222.222-2',
       phone: '+56922222222',
       email: uniqueEmail,
