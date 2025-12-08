@@ -148,6 +148,28 @@ export class ApplicationsService {
     });
   }
 
+  async findByUser(userId: number) {
+    const applications = await this.applicationsRepository.find({
+      where: { user: { id: userId } },
+      relations: ['jobOffer', 'jobOffer.company'],
+      order: { applicationDate: 'DESC' },
+    });
+
+    return applications.map(app => ({
+      id: app.id,
+      status: app.status,
+      applicationDate: app.applicationDate,
+      jobOffer: {
+        id: app.jobOffer.id,
+        title: app.jobOffer.title,
+        company: app.jobOffer.company.name,
+        location: app.jobOffer.location,
+        salary: app.jobOffer.salary,
+        modality: app.jobOffer.modality,
+      },
+    }));
+  }
+
   async updateStatus(
     id: number,
     updateApplicationDto: UpdateApplicationDto,

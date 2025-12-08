@@ -10,6 +10,7 @@ import { S3Module } from './s3/s3.module';
 import { ApplicationsModule } from './applications/applications.module';
 import { AdminModule } from './admin/admin.module';
 import { RabbitMQModule } from './rabbitmq/rabbitmq.module';
+import { FavoritesModule } from './favorites/favorites.module';
 
 
 
@@ -33,6 +34,7 @@ import { RabbitMQModule } from './rabbitmq/rabbitmq.module';
     CompaniesModule,
     JobOffersModule, 
     ApplicationsModule,
+    FavoritesModule,
     TypeOrmModule.forFeature([JobOffer]),
     S3Module, 
     RabbitMQModule,

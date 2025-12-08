@@ -7,7 +7,8 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  ForbiddenException, 
+  ForbiddenException,
+  Delete,
 } from '@nestjs/common';
 import { ApplicationsService } from '../applications/applications.service';
 import { CreateApplicationDto } from './dto/create-application.dto';
@@ -35,9 +36,27 @@ export class ApplicationsController {
     return this.applicationsService.create(createApplicationDto, userId);
   }
 
+  @Get('me')
+  async getMyApplications(@Request() req) {
+    const userId = req.user.userId;
+    if (!userId) {
+      throw new ForbiddenException('Token de usuario inválido');
+    }
+    return this.applicationsService.findByUser(userId);
+  }
 
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.applicationsService.findOne(id);
+  }
+
+  @Delete(':id')
+  async remove(@Param('id', ParseIntPipe) id: number, @Request() req) {
+    const userId = req.user.userId;
+    if (!userId) {
+      throw new ForbiddenException('Token de usuario inválido');
+    }
+    await this.applicationsService.remove(id);
+    return { message: 'Application deleted successfully' };
   }
 }

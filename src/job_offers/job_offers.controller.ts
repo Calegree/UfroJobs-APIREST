@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Inject, UseGuards, Request } from '@nestjs/common';
+import { Controller, Post, Body, Inject, UseGuards, Request, Get, Param, ParseIntPipe } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { JobOffersService } from './job_offers.service';
 import { CreateJobOfferDto } from './dto/create-job_offer.dto';
@@ -29,6 +29,16 @@ export class JobOffersController {
     const companyId = req.user.companyId || req.user.userId;
     createJobOfferDto.companyId = companyId;
     return await this.jobOffersService.create(createJobOfferDto);
+  }
+
+  @Get()
+  async findAll() {
+    return this.jobOffersService.findAll();
+  }
+
+  @Get(':id')
+  async findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.jobOffersService.findOne(id);
   }
 
 }
