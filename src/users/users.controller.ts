@@ -5,10 +5,16 @@ import {
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { UsersService } from './users.service';
 import { UserRole } from './users.entity';
+import { UpdateUserDto } from './dto/update-user.dto';
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) { }
+
+  @Post()
+  create(@Body() createUserDto) {
+    return this.usersService.create(createUserDto);
+  }
 
   @UseGuards(JwtAuthGuard)
   @Get('me')
@@ -16,9 +22,18 @@ export class UsersController {
     return this.usersService.findPublicProfile(req.user.userId);
   }
 
-  @Post()
-  create(@Body() createUserDto) {
-    return this.usersService.create(createUserDto);
+  @UseGuards(JwtAuthGuard)
+  @Patch('me')
+  async updateMe(@Request() req, @Body() updateUserDto: UpdateUserDto) {
+    const userId = req.user.userId || req.user.sub;
+    return this.usersService.update(userId, updateUserDto);
+  }
+
+  @Patch('me/cv')
+  @UseGuards(JwtAuthGuard)
+  async updateUserCv(@Request() req, @Body('cvKey') cvKey: string) {
+    const userId = req.user.sub || req.user.userId; 
+    return this.usersService.updateCvKey(userId, cvKey);
   }
 
   @Get('students')
@@ -56,12 +71,6 @@ export class UsersController {
   @Patch(':id/toggle-state')
   async toggleUserState(@Param('id') id: number) {
     return this.usersService.toggleState(id);
-  }
-  @Patch('me/cv')
-  @UseGuards(JwtAuthGuard)
-  async updateUserCv(@Request() req, @Body('cvKey') cvKey: string) {
-    const userId = req.user.sub; 
-    return this.usersService.updateCvKey(userId, cvKey);
   }
   
 }
