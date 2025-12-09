@@ -6,6 +6,8 @@ import { JobOffer, JobOfferState } from './entities/job_offer.entity';
 import { CreateJobOfferDto } from './dto/create-job_offer.dto';
 import { UpdateJobOfferDto } from './dto/update-job_offer.dto';
 import { ClientProxy } from '@nestjs/microservices';
+import { Application } from '../applications/entities/application.entity';
+import { S3Service } from '../s3/s3.service';
 
 @Injectable()
 export class JobOffersService {
@@ -14,7 +16,10 @@ export class JobOffersService {
     private readonly jobOfferRepo: Repository<JobOffer>,
     @InjectRepository(User)
     private readonly userRepo: Repository<User>,
+    @InjectRepository(Application)
+    private readonly applicationRepo: Repository<Application>,
     @Inject('RABBITMQ_SERVICE') private readonly rabbitClient: ClientProxy,
+    private readonly s3Service: S3Service,
   ) { }
 
   async create(createJobOfferDto: CreateJobOfferDto): Promise<JobOffer> {
@@ -78,5 +83,47 @@ export class JobOffersService {
     if (!offer) throw new NotFoundException('Job offer not found');
     offer.state = offer.state === JobOfferState.ACTIVO ? JobOfferState.INACTIVO : JobOfferState.ACTIVO;
     return this.jobOfferRepo.save(offer);
+  }
+
+  async getApplicantsWithDetails(jobOfferId: number) {
+    const offer = await this.findOne(jobOfferId);
+    if (!offer) {
+      throw new NotFoundException('Job offer not found');
+    }
+
+    const applications = await this.applicationRepo.find({
+      where: { jobOfferId },
+      relations: ['user'],
+      order: { applicationDate: 'DESC' },
+    });
+
+    const applicantsWithDetails = await Promise.all(
+      applications.map(async (app) => {
+        let cvUrl: string | null = null;
+        if (app.cvKey) {
+          try {
+            cvUrl = await this.s3Service.getPresignedDownloadUrl(app.cvKey);
+          } catch (error) {
+            console.error(`Error generating CV URL for application ${app.id}:`, error);
+          }
+        }
+
+        return {
+          id: app.id,
+          status: app.status,
+          applicationDate: app.applicationDate,
+          cvUrl,
+          user: {
+            id: app.user.id,
+            name: app.user.name,
+            email: app.user.email,
+            phone: app.user.phone,
+            career: app.user.career,
+          },
+        };
+      })
+    );
+
+    return applicantsWithDetails;
   }
 }

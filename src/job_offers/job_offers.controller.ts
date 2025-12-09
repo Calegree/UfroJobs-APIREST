@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Inject, UseGuards, Request, Get, Param, ParseIntPipe, Patch } from '@nestjs/common';
+import { Controller, Post, Body, Inject, UseGuards, Request, Get, Param, ParseIntPipe, Patch, ForbiddenException } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { JobOffersService } from './job_offers.service';
 import { CreateJobOfferDto } from './dto/create-job_offer.dto';
@@ -58,6 +58,23 @@ export class JobOffersController {
     }
     
     return this.jobOffersService.update(id, updateJobOfferDto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':id/applicants')
+  async getApplicants(
+    @Param('id', ParseIntPipe) id: number,
+    @Request() req
+  ) {
+    const companyId = req.user.companyId || req.user.userId;
+    
+    // Verificar que la oferta pertenece a la empresa
+    const jobOffer = await this.jobOffersService.findOne(id);
+    if (jobOffer.companyId !== companyId) {
+      throw new ForbiddenException('You are not authorized to view applicants for this job offer');
+    }
+    
+    return this.jobOffersService.getApplicantsWithDetails(id);
   }
 
 }
