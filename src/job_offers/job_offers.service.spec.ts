@@ -4,6 +4,8 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { JobOffer, JobOfferState, JobOfferModality } from './entities/job_offer.entity';
 import { User, UserRole } from '../users/users.entity';
 import { Repository, UpdateResult, DeleteResult } from 'typeorm';
+import { Application } from '../applications/entities/application.entity';
+import { S3Service } from '../s3/s3.service';
 import { NotFoundException } from '@nestjs/common';
 import { CreateJobOfferDto } from './dto/create-job_offer.dto';
 import { UpdateJobOfferDto } from './dto/update-job_offer.dto';
@@ -76,6 +78,18 @@ describe('JobOffersService', () => {
           provide: getRepositoryToken(User),
           useValue: {
             findBy: jest.fn(),
+          },
+        },
+        {
+          provide: getRepositoryToken(Application),
+          useValue: {
+            find: jest.fn(),
+          },
+        },
+        {
+          provide: S3Service,
+          useValue: {
+            getPresignedDownloadUrl: jest.fn(),
           },
         },
         {
