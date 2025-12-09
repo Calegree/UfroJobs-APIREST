@@ -1,5 +1,5 @@
-import { IsString, IsNotEmpty, IsNumber, IsDateString, IsArray, IsOptional } from 'class-validator';
-import { JobOfferModality } from '../entities/job_offer.entity';
+import { IsString, IsNotEmpty, IsNumber, IsArray, IsOptional, IsEnum } from 'class-validator';
+import { JobOfferModality, JobOfferState } from '../entities/job_offer.entity';
 
 export class CreateJobOfferDto {
   @IsString()
@@ -25,24 +25,19 @@ export class CreateJobOfferDto {
 
   @IsString()
   @IsNotEmpty()
-  salary?: string;
+  salary: string;
 
   @IsString()
   @IsNotEmpty()
   worktime: string;
 
-  @IsString()
+  @IsEnum(JobOfferModality)
   @IsNotEmpty()
   modality: JobOfferModality;
 
-
-  @IsDateString()
-  @IsNotEmpty()
-  publication_date: Date;
-
-  @IsString()
-  @IsNotEmpty()
-  status: string;
+  @IsEnum(JobOfferState)
+  @IsOptional()
+  state?: JobOfferState;
 
   @IsNumber()
   @IsOptional()
