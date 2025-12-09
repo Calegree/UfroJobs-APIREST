@@ -107,8 +107,7 @@ describe('JobOffersService', () => {
         salary: '100k',
         worktime: 'Full-time',
         modality: JobOfferModality.REMOTO,
-        publication_date: new Date(),
-        status: 'active',
+        state: JobOfferState.ACTIVO, // opcional
         companyId: 1,
       };
       jest.spyOn(jobOfferRepository, 'create').mockReturnValue(mockJobOffer);
