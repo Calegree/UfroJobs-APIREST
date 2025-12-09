@@ -1,7 +1,8 @@
-import { Controller, Post, Body, Inject, UseGuards, Request, Get, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Post, Body, Inject, UseGuards, Request, Get, Param, ParseIntPipe, Patch } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { JobOffersService } from './job_offers.service';
 import { CreateJobOfferDto } from './dto/create-job_offer.dto';
+import { UpdateJobOfferDto } from './dto/update-job_offer.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('job-offers')
@@ -39,6 +40,24 @@ export class JobOffersController {
   @Get(':id')
   async findOne(@Param('id', ParseIntPipe) id: number) {
     return this.jobOffersService.findOne(id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id')
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateJobOfferDto: UpdateJobOfferDto,
+    @Request() req
+  ) {
+    const companyId = req.user.companyId || req.user.userId;
+    
+    // Verificar que la oferta pertenece a la empresa
+    const jobOffer = await this.jobOffersService.findOne(id);
+    if (jobOffer.companyId !== companyId) {
+      throw new Error('You are not authorized to update this job offer');
+    }
+    
+    return this.jobOffersService.update(id, updateJobOfferDto);
   }
 
 }
