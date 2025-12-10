@@ -31,13 +31,9 @@ export class JobOffersService {
     }
 
     const jobOffer = this.jobOfferRepo.create(createJobOfferDto);
-    // Ensure defaults for fields that may be omitted by DTO or repository mock
-    if (!('publishedAt' in (jobOffer as any)) || !(jobOffer as any).publishedAt) {
-      (jobOffer as any).publishedAt = new Date();
-    }
-    if (!(jobOffer as any).state) {
-      (jobOffer as any).state = JobOfferState.ACTIVO;
-    }
+    this.applyCreateDefaults(jobOffer as any);
+
+    
 
     const newJobOffer = await this.jobOfferRepo.save(jobOffer);
 
@@ -55,6 +51,15 @@ export class JobOffersService {
 
   async findAll(): Promise<JobOffer[]> {
     return this.jobOfferRepo.find();
+  }
+
+  private applyCreateDefaults(jobOffer: any): void {
+    if (!('publishedAt' in jobOffer) || !jobOffer.publishedAt) {
+      jobOffer.publishedAt = new Date();
+    }
+    if (!jobOffer.state) {
+      jobOffer.state = JobOfferState.ACTIVO;
+    }
   }
 
   async findOne(id: number): Promise<JobOffer> {
