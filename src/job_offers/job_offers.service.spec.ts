@@ -130,6 +130,55 @@ describe('JobOffersService', () => {
       const result = await service.create(createDto);
       expect(result).toEqual(mockJobOffer);
     });
+
+    it('should set publishedAt when not provided (red)', async () => {
+      const createDto: CreateJobOfferDto = {
+        title: 'Software Engineer',
+        description: 'A great job',
+        requirements: ['5 years of experience'],
+        location: 'Remote',
+        tags: ['typescript', 'nestjs'],
+        salary: '100k',
+        worktime: 'Full-time',
+        modality: JobOfferModality.REMOTO,
+        companyId: 1,
+      };
+
+      const createdWithoutPublishedAt: any = { ...mockJobOffer };
+      delete createdWithoutPublishedAt.publishedAt;
+
+      jest.spyOn(jobOfferRepository, 'create').mockReturnValue(createdWithoutPublishedAt);
+      jest.spyOn(jobOfferRepository, 'save').mockImplementation(async (j: any) => ({ ...j }));
+
+      const result = await service.create(createDto);
+      // EXPECT: publishedAt must be set by the service when missing
+      expect(result.publishedAt).toBeDefined();
+    });
+
+    it('should default state to ACTIVO when not provided (red)', async () => {
+      const createDto: CreateJobOfferDto = {
+        title: 'Backend Developer',
+        description: 'Backend role',
+        requirements: ['Node.js'],
+        location: 'Santiago',
+        tags: ['node', 'postgres'],
+        salary: '80k',
+        worktime: 'Full-time',
+        modality: JobOfferModality.REMOTO,
+        companyId: 1,
+        // state intentionally omitted
+      };
+
+      const createdWithoutState: any = { ...mockJobOffer };
+      delete createdWithoutState.state;
+
+      jest.spyOn(jobOfferRepository, 'create').mockReturnValue(createdWithoutState);
+      jest.spyOn(jobOfferRepository, 'save').mockImplementation(async (j: any) => ({ ...j }));
+
+      const result = await service.create(createDto);
+      // EXPECT: service should set default state to ACTIVO
+      expect(result.state).toEqual(JobOfferState.ACTIVO);
+    });
   });
 
   describe('findOne', () => {
